@@ -19,9 +19,31 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import os
+
 import streamlit as st  # noqa: E402
 
+# On Streamlit Cloud the API key lives in st.secrets; expose it as an env var
+# so the rest of the codebase (utils/llm_client.py) picks it up transparently.
+_api_key = st.secrets.get("ANTHROPIC_API_KEY", "") or os.getenv("ANTHROPIC_API_KEY", "")
+if _api_key:
+    os.environ["ANTHROPIC_API_KEY"] = _api_key
+
 from graph.build_graph import build_graph  # noqa: E402
+
+
+@st.cache_resource(show_spinner="Building RAG index…")
+def _ensure_rag_index():
+    """Build the RAG index on first run (needed on Streamlit Cloud)."""
+    from rag.retriever import get_retriever
+    try:
+        get_retriever()
+    except RuntimeError:
+        from rag.ingest import main as ingest_main
+        ingest_main()
+
+
+_ensure_rag_index()
 
 st.set_page_config(
     page_title="CodeSentinel",
