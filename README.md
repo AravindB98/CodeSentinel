@@ -489,7 +489,6 @@ Built as the final project for INFO 7375 (Prompt Engineering and Generative AI) 
 
 Developed in parallel with the April 15 INFO 7375 Take-Home Final on reinforcement learning for agentic systems. The two submissions share a codebase; this project foregrounds the generative AI architecture, the Take-Home foregrounds the RL formulation.
 
-Gratitude to the AI Skunkworks research group at Northeastern for architecture discussions during the March 2026 design phase, and to the graduate student reviewers whose feedback on the February proposal led to the dual-backend fallback design and the Evaluator Guardian's two-layer validation.
 
 The Claude Mythos and Project Glasswing material published by Anthropic in April 2026 provided valuable late-stage context for framing the architectural pattern this project demonstrates.
 
