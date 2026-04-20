@@ -1,0 +1,291 @@
+[
+  {
+    "sample_id": "PAIR-SQLI-TP",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "CRITICAL",
+        "confidence": 0.82,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "elapsed_sec": 0.001,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "PAIR-SQLI-FP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-DESER-TP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "num_pred": 0,
+    "num_gt": 1,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-DESER-FP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-CMDI-TP",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-78",
+        "category": "Command Injection",
+        "severity": "HIGH",
+        "confidence": 0.75,
+        "line_start": 6,
+        "line_end": 6
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "PAIR-CMDI-FP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-CRYPTO-TP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "num_pred": 0,
+    "num_gt": 1,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-CRYPTO-FP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-YAML-TP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "num_pred": 0,
+    "num_gt": 1,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-YAML-FP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-TLS-TP",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-295",
+        "category": "Certificate Validation",
+        "severity": "HIGH",
+        "confidence": 0.8,
+        "line_start": 4,
+        "line_end": 4
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "PAIR-TLS-FP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-EVAL-TP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "num_pred": 0,
+    "num_gt": 1,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-EVAL-FP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-SECRET-TP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "num_pred": 0,
+    "num_gt": 1,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-SECRET-FP",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-200",
+        "category": "Information Disclosure",
+        "severity": "LOW",
+        "confidence": 0.55,
+        "line_start": 1,
+        "line_end": 1
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 1,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-SQLI-FORMAT-TP",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "num_pred": 0,
+    "num_gt": 1,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-DEADCODE-FP",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "CRITICAL",
+        "confidence": 0.82,
+        "line_start": 10,
+        "line_end": 10
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "HIGH",
+        "confidence": 0.72,
+        "line_start": 12,
+        "line_end": 12
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 2,
+    "fn": 0,
+    "num_pred": 2,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-CLEAN-HANDLER",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "HIGH",
+        "confidence": 0.72,
+        "line_start": 11,
+        "line_end": 11
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 1,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "PAIR-CLEAN-CRYPTO",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  }
+]

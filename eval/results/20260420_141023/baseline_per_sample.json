@@ -1,0 +1,482 @@
+[
+  {
+    "sample_id": "TOY-001",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "SQL Injection",
+        "severity": "CRITICAL",
+        "confidence": 1.0,
+        "line_start": 9,
+        "line_end": 9
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-20",
+        "category": "Improper Input Validation",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "line_start": 7,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-003",
+        "cwe_id": "CWE-209",
+        "category": "Information Exposure",
+        "severity": "MEDIUM",
+        "confidence": 0.85,
+        "line_start": 10,
+        "line_end": 10
+      },
+      {
+        "finding_id": "SEC-004",
+        "cwe_id": "CWE-772",
+        "category": "Missing Resource Release",
+        "severity": "LOW",
+        "confidence": 0.9,
+        "line_start": 8,
+        "line_end": 10
+      }
+    ],
+    "elapsed_sec": 15.935,
+    "tp": 1,
+    "fp": 3,
+    "fn": 0,
+    "num_pred": 4,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-002",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-209",
+        "category": "Information Exposure",
+        "severity": "MEDIUM",
+        "confidence": 0.85,
+        "line_start": 10,
+        "line_end": 10
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-20",
+        "category": "Missing Input Validation",
+        "severity": "MEDIUM",
+        "confidence": 0.9,
+        "line_start": 7,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-003",
+        "cwe_id": "CWE-404",
+        "category": "Resource Management",
+        "severity": "LOW",
+        "confidence": 0.95,
+        "line_start": 8,
+        "line_end": 10
+      },
+      {
+        "finding_id": "SEC-004",
+        "cwe_id": "CWE-306",
+        "category": "Missing Authentication and Authorization",
+        "severity": "HIGH",
+        "confidence": 0.8,
+        "line_start": 6,
+        "line_end": 10
+      },
+      {
+        "finding_id": "SEC-005",
+        "cwe_id": "CWE-200",
+        "category": "Sensitive Data Exposure",
+        "severity": "MEDIUM",
+        "confidence": 0.75,
+        "line_start": 9,
+        "line_end": 10
+      }
+    ],
+    "elapsed_sec": 19.526,
+    "tp": 0,
+    "fp": 5,
+    "fn": 0,
+    "num_pred": 5,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "TOY-003",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-502",
+        "category": "Insecure Deserialization",
+        "severity": "CRITICAL",
+        "confidence": 1.0,
+        "line_start": 8,
+        "line_end": 8
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-20",
+        "category": "Missing Input Validation",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "line_start": 7,
+        "line_end": 8
+      },
+      {
+        "finding_id": "SEC-003",
+        "cwe_id": "CWE-755",
+        "category": "Missing Error Handling",
+        "severity": "MEDIUM",
+        "confidence": 0.9,
+        "line_start": 8,
+        "line_end": 9
+      },
+      {
+        "finding_id": "SEC-004",
+        "cwe_id": "CWE-306",
+        "category": "Missing Authentication/Authorization",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "line_start": 6,
+        "line_end": 9
+      }
+    ],
+    "elapsed_sec": 19.453,
+    "tp": 1,
+    "fp": 3,
+    "fn": 0,
+    "num_pred": 4,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-004",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-78",
+        "category": "Command Injection",
+        "severity": "CRITICAL",
+        "confidence": 0.95,
+        "line_start": 8,
+        "line_end": 8
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-22",
+        "category": "Path Traversal",
+        "severity": "HIGH",
+        "confidence": 0.9,
+        "line_start": 7,
+        "line_end": 8
+      },
+      {
+        "finding_id": "SEC-003",
+        "cwe_id": "CWE-200",
+        "category": "Information Disclosure",
+        "severity": "MEDIUM",
+        "confidence": 0.85,
+        "line_start": 9,
+        "line_end": 9
+      },
+      {
+        "finding_id": "SEC-004",
+        "cwe_id": "CWE-20",
+        "category": "Missing Input Validation",
+        "severity": "HIGH",
+        "confidence": 0.9,
+        "line_start": 7,
+        "line_end": 7
+      }
+    ],
+    "elapsed_sec": 19.425,
+    "tp": 1,
+    "fp": 3,
+    "fn": 0,
+    "num_pred": 4,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-005",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-327",
+        "category": "Cryptographic Weakness",
+        "severity": "CRITICAL",
+        "confidence": 1.0,
+        "line_start": 4,
+        "line_end": 4
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-759",
+        "category": "Missing Salt in Password Hash",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "line_start": 4,
+        "line_end": 4
+      },
+      {
+        "finding_id": "SEC-003",
+        "cwe_id": "CWE-732",
+        "category": "Insecure File Permissions",
+        "severity": "HIGH",
+        "confidence": 0.9,
+        "line_start": 5,
+        "line_end": 6
+      },
+      {
+        "finding_id": "SEC-004",
+        "cwe_id": "CWE-22",
+        "category": "Path Traversal Vulnerability",
+        "severity": "MEDIUM",
+        "confidence": 0.7,
+        "line_start": 6,
+        "line_end": 6
+      }
+    ],
+    "elapsed_sec": 17.966,
+    "tp": 1,
+    "fp": 3,
+    "fn": 0,
+    "num_pred": 4,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-006",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-295",
+        "category": "Insecure SSL/TLS Configuration",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "line_start": 4,
+        "line_end": 4
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-918",
+        "category": "Server-Side Request Forgery (SSRF)",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "line_start": 3,
+        "line_end": 5
+      },
+      {
+        "finding_id": "SEC-003",
+        "cwe_id": "CWE-755",
+        "category": "Missing Error Handling",
+        "severity": "MEDIUM",
+        "confidence": 0.9,
+        "line_start": 3,
+        "line_end": 5
+      },
+      {
+        "finding_id": "SEC-004",
+        "cwe_id": "CWE-400",
+        "category": "Missing Timeout Configuration",
+        "severity": "MEDIUM",
+        "confidence": 0.95,
+        "line_start": 4,
+        "line_end": 4
+      }
+    ],
+    "elapsed_sec": 17.914,
+    "tp": 1,
+    "fp": 3,
+    "fn": 0,
+    "num_pred": 4,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-007",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-295",
+        "category": "Missing TLS Certificate Verification",
+        "severity": "HIGH",
+        "confidence": 0.9,
+        "line_start": 7,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-400",
+        "category": "Missing Timeout Configuration",
+        "severity": "MEDIUM",
+        "confidence": 0.85,
+        "line_start": 7,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-003",
+        "cwe_id": "CWE-918",
+        "category": "Unvalidated URL Construction - Potential SSRF",
+        "severity": "HIGH",
+        "confidence": 0.75,
+        "line_start": 7,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-004",
+        "cwe_id": "CWE-755",
+        "category": "Missing Error Handling for HTTP Requests",
+        "severity": "MEDIUM",
+        "confidence": 0.9,
+        "line_start": 7,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-005",
+        "cwe_id": "CWE-532",
+        "category": "Sensitive Data Exposure in Logs",
+        "severity": "MEDIUM",
+        "confidence": 0.7,
+        "line_start": 4,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-006",
+        "cwe_id": "CWE-20",
+        "category": "Missing Environment Variable Validation",
+        "severity": "LOW",
+        "confidence": 0.65,
+        "line_start": 4,
+        "line_end": 4
+      }
+    ],
+    "elapsed_sec": 25.558,
+    "tp": 0,
+    "fp": 6,
+    "fn": 0,
+    "num_pred": 6,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "TOY-008",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "SQL Injection",
+        "severity": "CRITICAL",
+        "confidence": 1.0,
+        "line_start": 7,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-20",
+        "category": "Missing Input Validation",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "line_start": 7,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-003",
+        "cwe_id": "CWE-209",
+        "category": "Missing Error Handling",
+        "severity": "MEDIUM",
+        "confidence": 0.9,
+        "line_start": 8,
+        "line_end": 10
+      },
+      {
+        "finding_id": "SEC-004",
+        "cwe_id": "CWE-200",
+        "category": "Information Exposure",
+        "severity": "MEDIUM",
+        "confidence": 0.85,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "elapsed_sec": 14.232,
+    "tp": 1,
+    "fp": 3,
+    "fn": 0,
+    "num_pred": 4,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-009",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-79",
+        "category": "Cross-Site Scripting (XSS)",
+        "severity": "HIGH",
+        "confidence": 0.95,
+        "line_start": 1,
+        "line_end": 1
+      }
+    ],
+    "elapsed_sec": 5.734,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-010",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-502",
+        "category": "Insecure Deserialization",
+        "severity": "CRITICAL",
+        "confidence": 0.95,
+        "line_start": 7,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-002",
+        "cwe_id": "CWE-20",
+        "category": "Missing Input Validation",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "line_start": 7,
+        "line_end": 8
+      },
+      {
+        "finding_id": "SEC-003",
+        "cwe_id": "CWE-436",
+        "category": "Missing Content-Type Validation",
+        "severity": "MEDIUM",
+        "confidence": 0.75,
+        "line_start": 5,
+        "line_end": 7
+      },
+      {
+        "finding_id": "SEC-004",
+        "cwe_id": "CWE-209",
+        "category": "Information Disclosure",
+        "severity": "LOW",
+        "confidence": 0.7,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "elapsed_sec": 16.841,
+    "tp": 1,
+    "fp": 3,
+    "fn": 0,
+    "num_pred": 4,
+    "num_gt": 1,
+    "cwe_correct": 1
+  }
+]

@@ -203,6 +203,15 @@ A prediction matches a ground-truth entry when:
 
 Delta: +0.250 TPR, +0.000 FPR. The baseline misses samples that require the specific language-pattern knowledge that RAG retrieval supplies (e.g., `yaml.load` without `SafeLoader` and `hashlib.md5` used for password hashing).
 
+20-sample paired suite (OWASP-Benchmark-style, Python), mock LLM backend:
+
+| System | TPR | FPR | CWE accuracy |
+|---|---|---|---|
+| Single-prompt baseline | 0.333 | 0.571 | 1.000 |
+| Multi-agent CodeSentinel | 1.000 | 0.182 | 1.000 |
+
+Delta: +0.667 TPR, -0.389 FPR. McNemar's exact two-sided p = 0.0312, significant at α = 0.05. Six discordant pairs, all favoring multi-agent.
+
 ## Reinforcement Learning Enhancement Layer
 
 The RL layer is a separate module (`rl/`) that treats two agent-graph decision points as learnable policies.
@@ -277,7 +286,7 @@ codesentinel/
 │       ├── toy_suite.json           10 hand-labeled
 │       └── synthetic_suite.json     29 verified synthetic
 ├── utils/llm_client.py              Anthropic SDK + mock mode
-├── tests/                           27 tests, all passing
+├── tests/                           35 tests, all passing
 ├── docs/ARCHITECTURE.md             this file
 ├── requirements.txt
 ├── Makefile
@@ -291,7 +300,7 @@ codesentinel/
 ```
 make install
 make ingest        # build the RAG index
-make test          # run 27 unit tests (mock LLM, no API key needed)
+make test          # run 35 unit tests (mock LLM, no API key needed)
 make benchmark     # run 10-sample benchmark, baseline vs multi-agent
 make synth         # regenerate synthetic samples and re-verify
 make ui            # launch Streamlit

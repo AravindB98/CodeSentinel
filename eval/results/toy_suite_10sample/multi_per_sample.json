@@ -23,7 +23,7 @@
         "line_end": 10
       }
     ],
-    "elapsed_sec": 3.852,
+    "elapsed_sec": 3.693,
     "retries": {
       "security_sentinel": 1,
       "code_quality_auditor": 1,
@@ -46,7 +46,7 @@
     "sample_id": "TOY-002",
     "predictions": [],
     "raw_all": [],
-    "elapsed_sec": 0.002,
+    "elapsed_sec": 0.003,
     "retries": {
       "security_sentinel": 1,
       "code_quality_auditor": 1,
@@ -153,7 +153,17 @@
   },
   {
     "sample_id": "TOY-005",
-    "predictions": [],
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-327",
+        "category": "Cryptographic Failure",
+        "severity": "MEDIUM",
+        "confidence": 0.75,
+        "line_start": 4,
+        "line_end": 4
+      }
+    ],
     "raw_all": [
       {
         "finding_id": "SEC-001",
@@ -165,31 +175,24 @@
         "line_end": 4
       }
     ],
-    "elapsed_sec": 0.004,
+    "elapsed_sec": 0.002,
     "retries": {
-      "security_sentinel": 3,
-      "code_quality_auditor": 3,
-      "evaluator": 3
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
     },
     "trace": [
       "security_sentinel: produced 1 finding(s)",
       "code_quality_auditor: produced 0 finding(s)",
-      "evaluator: REJECTED (approved=0, rejected=1)",
-      "security_sentinel: produced 1 finding(s)",
-      "code_quality_auditor: produced 0 finding(s)",
-      "evaluator: REJECTED (approved=0, rejected=1)",
-      "security_sentinel: produced 1 finding(s)",
-      "code_quality_auditor: produced 0 finding(s)",
-      "evaluator: REJECTED (approved=0, rejected=1)",
-      "circuit_breaker: max retries reached, terminating",
+      "evaluator: APPROVED (approved=1, rejected=0)",
       "assemble_report: done"
     ],
-    "tp": 0,
+    "tp": 1,
     "fp": 0,
-    "fn": 1,
-    "num_pred": 0,
+    "fn": 0,
+    "num_pred": 1,
     "num_gt": 1,
-    "cwe_correct": 0
+    "cwe_correct": 1
   },
   {
     "sample_id": "TOY-006",
@@ -367,7 +370,7 @@
         "line_end": 7
       }
     ],
-    "elapsed_sec": 0.002,
+    "elapsed_sec": 0.026,
     "retries": {
       "security_sentinel": 1,
       "code_quality_auditor": 1,

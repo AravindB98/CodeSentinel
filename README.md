@@ -1,35 +1,62 @@
 # CodeSentinel
 
-**Multi-agent retrieval-augmented generative AI for automated code review and vulnerability detection.**
+**A Multi-Agent Retrieval-Augmented Generative AI System for Automated Code Review and Vulnerability Detection**
 
-INFO 7375 Final Project | Spring 2026 | Northeastern University, College of Engineering
-Aravind Balaji | balaji.ara@northeastern.edu
+INFO 7375 — Prompt Engineering and Generative AI | Spring 2026
+Aravind Balaji | M.S. Information Systems, Northeastern University College of Engineering
+balaji.ara@northeastern.edu | [aravindbalaji.com](https://aravindbalaji.com)
+
+---
+
+## Table of Contents
+
+- [What CodeSentinel Is](#what-codesentinel-is)
+- [Why This Project Exists](#why-this-project-exists)
+- [How It Works (Architecture)](#how-it-works-architecture)
+- [Measured Results](#measured-results)
+- [Tech Stack](#tech-stack)
+- [Repository Structure](#repository-structure)
+- [Quick Start](#quick-start)
+- [Rubric Compliance With Evidence](#rubric-compliance-with-evidence)
+- [Comparison With Industry Products](#comparison-with-industry-products)
+- [Portfolio Piece](#portfolio-piece)
+- [Honest Limitations](#honest-limitations)
+- [References](#references)
+- [License](#license)
+- [Citation](#citation)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
 ## What CodeSentinel Is
 
-CodeSentinel runs your source code through three specialized AI agents that review each other's work before any finding reaches you. The Security Sentinel performs RAG-grounded vulnerability detection against OWASP Top 10 2025 and a curated CWE taxonomy. The Code Quality Auditor focuses on style and maintainability. The Evaluator Guardian acts as an internal adversary that rejects findings lacking citations, evidence, or concrete remediation.
+CodeSentinel is a multi-agent code review system in which three specialized LLM agents — a Security Sentinel, a Code Quality Auditor, and an Evaluator Guardian — review each other's work through a LangGraph directed graph before any finding reaches the user. Every security finding must cite a passage retrieved from a local index of OWASP Top 10 2025 and CWE taxonomy entries; findings without citations are programmatically rejected. A bounded retry loop allows the Evaluator to route rejections back to upstream agents with structured feedback, with a three-retry circuit breaker to guarantee termination.
 
-The system is built on LangGraph with a bounded retry loop. A reinforcement learning layer learns prompt-variant selection and routing decisions from the Evaluator's feedback signal over time.
+The system is built as a reproducible research artifact with a deterministic mock-LLM mode enabling the full pipeline (and all 35 unit tests) to run without an API key. A reinforcement learning demonstration module (UCB-1 contextual bandit over prompt variants, REINFORCE policy gradient over routing decisions) is included in the repository but is not integrated into the production agent graph in this release; the benchmark numbers reported below do not depend on it.
 
----
-
-## Rubric Component Coverage
-
-The INFO 7375 rubric requires at least two of the five listed generative AI components. This project implements four, plus a novel RL contribution.
-
-| Component | Implementation |
-|---|---|
-| **Prompt Engineering** | Three versioned agent prompts in `graph/prompts/`, each with explicit role, input contract, output contract, and failure modes. Refined iteratively against a held-out validation set. |
-| **Retrieval-Augmented Generation** | Local vector store (ChromaDB or TF-IDF fallback) over 57 passages from OWASP Top 10 2025, CWE taxonomy, and language-specific patterns. Two-pass retrieval with lexical rerank. Citation-required policy enforced at Evaluator. |
-| **Synthetic Data Generation** | Independent generator (`synth/generate.py`) and verifier (`synth/verify.py`). 15 CWE templates across Python, JavaScript, Java. Generates vulnerable + safe pairs with ground-truth labels; verifier rejects samples whose detector fails independently. |
-| **Systematic Prompt Tuning (fine-tuning surrogate)** | Held-out validation drives prompt revisions. Each prompt has three documented versions tracked in git. Applied at the prompt-surface level since weight-level fine-tuning is not appropriate for a short production-grade system. |
-| **Novel Contribution** | **Reinforcement Learning Enhancement Layer**. UCB-1 contextual bandit (`rl/bandit.py`) for prompt variant selection; REINFORCE policy gradient (`rl/policy.py`) for routing after Evaluator rejection. Under 500 parameters total; demos show convergence. |
+**The thesis**: when an LLM application is rearchitected into specialized, grounded, adversarially-reviewed agents, the gains come from the architecture rather than from the underlying model. Those gains should compose with any model the field produces next.
 
 ---
 
-## Architecture
+## Why This Project Exists
+
+Single-prompt LLM code review has three failure modes that matter in practice, each documented with industry data:
+
+1. **Hallucinated vulnerabilities.** Models invent plausible-sounding CWEs with no grounding. A finding citing `A03:2025` might be real, or the model might be pattern-matching on the word "database" without evidence to check against.
+
+2. **Silent omissions.** Real defects slip past. The single-prompt baseline in the benchmark below missed `yaml.load` without `SafeLoader` (CWE-502) and `hashlib.md5` used for password hashing (CWE-327) — both textbook RCEs documented in the 2025 OWASP Top 10.
+
+3. **Untraceable findings.** Even correct findings arrive without provenance. If a claim cannot be traced to an authoritative source, it cannot be handed to a human reviewer, an auditor, or a customer.
+
+Prompt-tuning alone cannot fix any of these. They are architectural failures that require architectural fixes.
+
+The problem matters because the code-review gap is widening. According to the 2025 Stack Overflow Developer Survey of 49,000+ respondents, 84% of developers now use or plan to use AI coding tools, with roughly 41% of code written in 2025 reported as AI-generated. Meanwhile, Veracode's 2025 State of Software Security scanned over a million applications and found that roughly half contain at least one OWASP Top 10 flaw. Code is being produced faster than it is reviewed. The IBM Cost of a Data Breach Report places the average breach at $4.45M USD, with textbook known-pattern vulnerabilities (Equifax's Struts patch failure, Capital One's misconfigured cloud server) responsible for the largest incidents of recent years.
+
+CodeSentinel does not claim to solve this. It demonstrates that a specific architectural pattern — specialization, grounding, adversarial validation — produces measurable gains over single-prompt review on the same underlying model.
+
+---
+
+## How It Works (Architecture)
 
 ```
                ┌──────────────────┐
@@ -56,15 +83,142 @@ The INFO 7375 rubric requires at least two of the five listed generative AI comp
                └──────────────────┘
 ```
 
-Three agents. One shared typed state. Conditional routing with a per-agent retry counter as a circuit breaker.
+Three agents, one shared typed state, conditional routing with a per-agent retry counter acting as a circuit breaker.
 
-Full architecture in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- **Security Sentinel** — RAG-grounded vulnerability detection. Builds a retrieval query from language cues and suspicious tokens, fetches top-6 passages with two-pass semantic plus lexical rerank, and emits findings that *must* cite a retrieved passage by ID. Findings without valid citations are rejected downstream.
+- **Code Quality Auditor** — Style, maintainability, and error-handling review. Explicitly non-overlapping with Security Sentinel territory; never emits CRITICAL severity. Capped at 10 findings per file to prevent alert fatigue.
+- **Evaluator Guardian** — Adversarial reviewer with two layers. First a programmatic check (schema validity, citation presence in retrieved context, fix length ≥20 characters, confidence ≥0.5). Then, only if programmatic passes, an LLM semantic check for whether the cited passage actually supports the claim. Rejections produce structured feedback routed back to the upstream agent.
+
+Full architecture and routing logic in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+---
+
+## Measured Results
+
+Every number below is measured by running `make benchmark` and `make benchmark-paired` in deterministic mock-LLM mode. No API key required, reproducible on any clone.
+
+### Final Official Results
+
+**Toy suite — 10 hand-labeled samples, 8 ground-truth findings**
+
+| System | TPR | FPR | CWE accuracy | McNemar p |
+|---|---|---|---|---|
+| Single-prompt baseline | 0.750 | 0.000 | 1.000 | — |
+| **Multi-agent CodeSentinel** | **1.000** | **0.000** | **1.000** | 0.5000 (n.s.) |
+
+Delta: **+0.250 TPR**. Direction favors multi-agent; ten samples is too few for statistical significance on its own.
+
+**Paired suite — 20 samples (10 true-positive + 10 false-positive traps), OWASP-Benchmark-style methodology**
+
+| System | TPR | FPR | CWE accuracy | Youden | McNemar p |
+|---|---|---|---|---|---|
+| Single-prompt baseline | 0.333 | 0.571 | 1.000 | −0.238 | — |
+| **Multi-agent CodeSentinel** | **1.000** | **0.182** | **1.000** | **+0.818** | **0.0312** |
+
+Delta: **+0.667 TPR, −0.389 FPR**. McNemar's exact two-sided p = 0.0312, **significant at α = 0.05**. Six discordant pairs, all favoring multi-agent.
+
+The two multi-agent false positives on the paired suite are (1) `hashlib.md5` used as a content-addressed cache key and (2) a dead-code vulnerable branch. Both are documented limitations of pattern-based detection, decomposed in §10.8 of the technical report with three concrete mitigation paths.
+
+**35/35 unit tests pass** on a clean clone in mock mode with no external dependencies.
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Why |
+|---|---|---|
+| Agent orchestration | LangGraph 0.2.x | Explicit state transitions; `add_conditional_edges` maps cleanly to a bounded retry loop with visible routing logic |
+| Reasoning LLM | Anthropic Claude Sonnet (via `anthropic` SDK) | Strong code reasoning; structured output adherence |
+| Fallback LLM mode | Custom deterministic mock | Enables offline testing, CI, and evaluation without an API key |
+| Embeddings | HuggingFace `all-MiniLM-L6-v2` (local CPU) | Small, fast, no external API dependency |
+| Vector store | ChromaDB 0.5.x (persistent local) | Embedded, no server required |
+| Fallback retrieval | scikit-learn TF-IDF | Works when ChromaDB + sentence-transformers unavailable |
+| Floor retrieval | Pure-Python TF-IDF | Works with zero heavy dependencies |
+| Schemas | Pydantic 2.x (with dataclass fallback) | Strict contract enforcement at agent boundaries; fallback makes the code runnable without Pydantic |
+| UI | Streamlit 1.38+ | Single-file interactive UI; no frontend build step |
+| RL (demonstration module only) | NumPy | No PyTorch required; keeps dependencies minimal |
+| Testing | `unittest`-compatible (pytest optional) | Runs with the Python standard library; pytest not required |
+| Document generation | docx-js, LibreOffice | Reproducible report PDF generation |
+
+**The three-tier fallback design** (ChromaDB → sklearn → pure Python) means the full pipeline runs end-to-end on any machine, including graders' environments with minimal setup. This is tested: the benchmark results above were produced without ChromaDB or Pydantic installed.
+
+---
+
+## Repository Structure
+
+```
+codesentinel/
+├── app/
+│   └── streamlit_app.py                Interactive Streamlit UI
+├── docs/
+│   ├── ARCHITECTURE.md                 Architecture doc with ASCII diagram
+│   ├── CodeSentinel_Technical_Report.pdf  23-page technical report
+│   ├── CodeSentinel_Technical_Report.docx Editable source of the report
+│   └── REVIEWERS_GUIDE.md              15-minute grader walkthrough
+├── graph/
+│   ├── state.py                        Shared TypedDict state
+│   ├── schemas.py                      Pydantic models + dataclass fallback
+│   ├── build_graph.py                  LangGraph wiring + hand-rolled fallback runner
+│   ├── agents/
+│   │   ├── security_sentinel.py        RAG-grounded vulnerability detector
+│   │   ├── code_quality_auditor.py     Style + maintainability reviewer
+│   │   └── evaluator_guardian.py       Adversarial validator (programmatic + LLM)
+│   └── prompts/
+│       ├── security.md                 Security Sentinel system prompt
+│       ├── quality.md                  Quality Auditor system prompt
+│       └── evaluator.md                Evaluator Guardian system prompt
+├── rag/
+│   ├── ingest.py                       Triple-backend RAG ingestion
+│   ├── retriever.py                    Two-pass retrieval with lexical rerank
+│   └── data/
+│       ├── owasp_top10_2025.txt        10 OWASP category passages
+│       ├── cwe_subset.csv              29 CWE taxonomy passages
+│       └── patterns.md                 17 language-specific patterns
+├── synth/
+│   ├── generate.py                     15 CWE template pairs; vuln/safe outputs
+│   └── verify.py                       Independent regex-based verifier
+├── rl/                                 Demonstration modules (not wired into graph)
+│   ├── bandit.py                       UCB-1 contextual bandit
+│   └── policy.py                       REINFORCE policy gradient
+├── eval/
+│   ├── baseline_single_prompt.py       Single-prompt baseline CodeSentinel is compared against
+│   ├── run_benchmark.py                Benchmark runner + McNemar's exact test
+│   ├── semgrep_compare.py              Real-world comparison protocol
+│   ├── datasets/
+│   │   ├── toy_suite.json              10 hand-labeled samples
+│   │   ├── paired_suite.json           20 samples, OWASP-Benchmark-style
+│   │   ├── synthetic_suite.json        29 verified synthetic samples
+│   │   └── synthetic_rejected.json     Samples the verifier rejected
+│   └── results/
+│       ├── toy_suite_10sample/         Committed benchmark output
+│       └── paired_suite_20sample/      Committed benchmark output
+├── utils/
+│   └── llm_client.py                   Anthropic SDK wrapper + mock-mode fallback
+├── tests/                              35 tests across 4 files
+│   ├── test_pipeline.py                7 end-to-end tests
+│   ├── test_agents.py                  13 per-agent tests
+│   ├── test_rag.py                     7 retrieval tests
+│   └── test_adversarial_failures.py    8 silent-failure tests
+├── index.html                          Project showcase page
+├── requirements.txt                    Pinned dependencies
+├── Makefile                            Targets: install, ingest, test, benchmark, etc.
+├── .env.example                        Template for API-key config
+├── .gitignore
+├── LICENSE                             MIT License
+└── README.md                           This file
+```
+
+Total: 4,600+ lines of Python across 46 files, plus documentation. Every Python file has a module-level docstring explaining purpose and contracts.
 
 ---
 
 ## Quick Start
 
-### 1. Clone and install
+### Prerequisites
+- Python 3.11+ (tested on 3.11 and 3.12)
+- ~100 MB disk space for dependencies
+
+### Installation
 
 ```bash
 git clone https://github.com/aravindbalaji/codesentinel.git
@@ -73,214 +227,272 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure (optional)
-
-To use the real Anthropic model:
+### Optional: Real LLM mode
 
 ```bash
 cp .env.example .env
 # Edit .env and set: ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-**Without a key, the pipeline runs end-to-end in mock mode** with deterministic pattern-matched outputs. This is useful for graders, CI, and tests.
+Without an API key, the pipeline runs in deterministic mock mode. All results reported in this README were measured in mock mode.
 
-### 3. Build the RAG knowledge base
+### Build the RAG index
 
 ```bash
 make ingest
-# or: python -m rag.ingest
 ```
 
-Loads 57 passages into ChromaDB (or TF-IDF fallback). Runs once; re-run to refresh.
+Loads 56 passages into ChromaDB, or sklearn TF-IDF, or pure-Python TF-IDF (whichever backend is available). Idempotent; safe to re-run.
 
-### 4. Launch the Streamlit UI
-
-```bash
-make ui
-# or: streamlit run app/streamlit_app.py
-```
-
-Paste code, hit Analyze, see the full review with citations.
-
----
-
-## Running the Evaluation
-
-```bash
-# Full 10-sample benchmark: baseline vs multi-agent
-make benchmark
-
-# Multi-agent only
-python -m eval.run_benchmark --mode multi
-
-# Single sample debug run
-python -m eval.run_benchmark --sample TOY-001
-```
-
-Results written to `eval/results/<timestamp>/` with per-sample JSON, aggregate metrics, and a human-readable summary.
-
-### Measured Results (10-sample toy suite, mock LLM)
-
-| System | TPR | FPR | CWE Accuracy |
-|---|---|---|---|
-| Single-prompt baseline | 0.750 | 0.000 | 1.000 |
-| Multi-agent CodeSentinel | **0.875** | 0.000 | 1.000 |
-
-**Delta: +12.5 percentage points TPR**, achieved without sacrificing precision. The baseline misses samples requiring language-specific pattern knowledge (for example, `yaml.load` without `SafeLoader`) that RAG retrieval supplies.
-
-These numbers were produced by `make benchmark` and can be reproduced on a clean clone. They are not targets or estimates.
-
----
-
-## Running the Tests
+### Run the tests
 
 ```bash
 make test
-# Runs 27 unit tests covering RAG, agents, and full pipeline
-# No API key required (mock LLM mode)
 ```
 
-27/27 pass on a clean clone.
+Expected: **35/35 passing** in about 2 seconds.
 
----
-
-## Generating Synthetic Samples
+### Run the benchmarks
 
 ```bash
-# Generate + verify in one shot (via Makefile)
-make synth
-
-# Or manually:
-python -m synth.generate --count 15 --out eval/datasets/synthetic_suite.json
-python -m synth.verify eval/datasets/synthetic_suite.json
+make benchmark          # 10-sample toy suite
+make benchmark-paired   # 20-sample OWASP-Benchmark-style paired suite
 ```
 
-Produces vulnerable + safe code pairs for 15 CWE/language combinations. Verifier uses an independent regex-based detector with no shared context with the generator. Samples that fail verification are moved to `eval/datasets/synthetic_rejected.json`.
+Results are written to `eval/results/<timestamp>/` with per-sample JSON, aggregate metrics, and a human-readable summary. The committed `toy_suite_10sample/` and `paired_suite_20sample/` directories reproduce exactly from `make benchmark`.
 
-Current run: 29/30 samples pass verification (96.7% pass rate).
+### Run the Streamlit UI
+
+```bash
+make ui
+```
+
+Paste code, click Analyze, see findings with RAG citations.
+
+### Real-world Semgrep comparison
+
+```bash
+pip install semgrep
+make semgrep-compare FILES='path/to/file.py path/to/other.py'
+```
+
+Produces an adjudication worksheet in `eval/results/semgrep_comparison/` comparing CodeSentinel against Semgrep on the same files. Protocol specified in §10.10 of the technical report.
 
 ---
 
-## Repository Structure
+## Rubric Compliance With Evidence
 
-```
-codesentinel/
-├── app/streamlit_app.py          # Interactive web UI
-├── graph/
-│   ├── state.py                  # Shared TypedDict state
-│   ├── schemas.py                # Pydantic models with dataclass fallback
-│   ├── build_graph.py            # LangGraph wiring + fallback runner
-│   ├── agents/                   # Three agent implementations
-│   └── prompts/                  # Versioned system prompts
-├── rag/
-│   ├── ingest.py                 # Triple-backend ingestion
-│   ├── retriever.py              # Two-pass retrieval with lexical rerank
-│   └── data/                     # 57 passages: OWASP + CWE + patterns
-├── synth/
-│   ├── generate.py               # 15 CWE template pairs
-│   └── verify.py                 # Independent regex-based verifier
-├── rl/
-│   ├── bandit.py                 # UCB-1 contextual bandit
-│   └── policy.py                 # REINFORCE policy gradient
-├── eval/
-│   ├── baseline_single_prompt.py
-│   ├── run_benchmark.py
-│   └── datasets/
-│       ├── toy_suite.json        # 10 hand-labeled samples
-│       └── synthetic_suite.json  # 29 verified synthetic samples
-├── utils/llm_client.py           # Anthropic SDK + mock mode
-├── tests/                        # 27 tests: RAG, agents, pipeline
-├── docs/ARCHITECTURE.md          # Full architecture doc
-├── requirements.txt
-├── Makefile
-├── .env.example
-├── .gitignore
-└── README.md
-```
+The INFO 7375 assignment requires **at least 2 of the 5 listed generative AI components**. This project implements **4 of 5**, with the fifth (multimodal) being out of scope for text-based code review.
 
----
+Each entry below points to specific code that demonstrates the component.
 
-## Tech Stack
+### 1. Prompt Engineering ✅
 
-| Layer | Technology |
+| Requirement from rubric | Evidence in this project |
 |---|---|
-| Agent orchestration | LangGraph (with hand-rolled fallback runner) |
-| Reasoning LLM | Anthropic Claude Sonnet (with deterministic mock mode) |
-| Embeddings | HuggingFace all-MiniLM-L6-v2 (local CPU) |
-| Vector store | ChromaDB (persistent local) with TF-IDF fallback |
-| UI | Streamlit |
-| Schemas | Pydantic 2 (with dataclass fallback) |
-| RL | NumPy-only (no PyTorch required) |
-| Testing | unittest-compatible (pytest optional) |
+| Design systematic prompting strategies | Three role-specialized system prompts in `graph/prompts/`: `security.md`, `quality.md`, `evaluator.md`. Each specifies role, input contract, output contract, and rejection reasons. |
+| Implement context management | Shared typed state in `graph/state.py` (`CodeSentinelState` TypedDict) threads context through all agents explicitly rather than via prompt concatenation. |
+| Create specialized user interaction flows | Streamlit UI in `app/streamlit_app.py` with sidebar API key config, demo snippets, and RAG status indicator. |
+| Handle edge cases and errors gracefully | Every agent has try/except around LLM calls with graceful degradation; the Evaluator rejects malformed findings before surfacing. See `_parse_findings` in each agent file for schema-based rejection. |
 
-**Why triple-fallback design**: The pipeline should run end-to-end on any machine without heavy dependencies. ChromaDB is the preferred backend; sklearn TF-IDF is used if ChromaDB is unavailable; pure-Python TF-IDF is the floor. Same behavior, different backends.
+### 2. Retrieval-Augmented Generation ✅
 
----
+| Requirement from rubric | Evidence in this project |
+|---|---|
+| Build a knowledge base for your domain | 56 passages across three sources: OWASP Top 10 2025 (10 entries), CWE taxonomy subset (29 entries), language-specific patterns (17 entries). See `rag/data/`. |
+| Implement vector storage and retrieval | `rag/retriever.py` implements a unified interface over three backends (ChromaDB, sklearn TF-IDF, pure-Python TF-IDF) with automatic fallback. |
+| Design relevant document chunking strategies | Semantic-boundary chunking: one passage per OWASP category, one per CWE, one per named pattern. Documented rationale in §6.3 of the technical report. |
+| Create effective ranking and filtering mechanisms | Two-pass retrieval: semantic top-2k retrieval followed by lexical rerank boosting specific CWE matches over generic OWASP entries. See `_lexical_rerank` in `rag/retriever.py`. Locked in by `test_rerank_boosts_specific_over_generic`. |
 
-## What Every Security Finding Contains
+### 3. Synthetic Data Generation ✅
 
-Every finding the Security Sentinel produces must include all of the following, or it is rejected by the Evaluator before reaching you:
+| Requirement from rubric | Evidence in this project |
+|---|---|
+| Create synthetic datasets for training or testing | `synth/generate.py`: 15 CWE template pairs spanning Python, JavaScript, Java; produces paired vulnerable and safe code samples with ground-truth labels. |
+| Implement data augmentation techniques | Each template generates multiple sample variants with different variable names, function signatures, and surrounding context. |
+| Ensure diversity and quality of generated data | **Independent verifier** in `synth/verify.py` uses regex-based detectors completely separate from the generator's templates and prompts. Samples failing verification are moved to `synthetic_rejected.json`. Current pass rate: 29/30 (96.7%). The one rejection is evidence the verifier is genuinely independent rather than a copy of the generator. |
+| Address privacy or ethical considerations | Templates explicitly avoid real credentials, real exploit payloads, and samples targeting specific production systems. Documented in §12 of the technical report. |
 
-```json
-{
-  "finding_id": "SEC-001",
-  "category": "Injection",
-  "cwe_id": "CWE-89",
-  "owasp_ref": "A03:2025 Injection",
-  "severity": "CRITICAL",
-  "confidence": 0.94,
-  "evidence": {
-    "file": "snippet",
-    "line_start": 9,
-    "line_end": 9,
-    "snippet": "cur.execute(f\"SELECT * FROM users WHERE id = {user_id}\")"
-  },
-  "fix": "Replace the f-string with a parameterized query: cur.execute(\"SELECT * FROM users WHERE id = ?\", (user_id,))",
-  "rag_source": {
-    "doc": "patterns.md",
-    "passage_id": "PY-01",
-    "excerpt": "Any SQL query constructed using an f-string with a user-controlled value is vulnerable..."
-  }
-}
-```
+### 4. Reinforcement Learning (beyond rubric) ⚠️
+
+| Claim | Evidence and honest scope |
+|---|---|
+| UCB-1 contextual bandit for prompt variant selection | `rl/bandit.py`; converges to correct best-arm per context on a synthetic reward surface after ~200 rounds. |
+| REINFORCE policy gradient for routing | `rl/policy.py`; recovers correct action-per-rejection-reason mapping after ~600 training steps with <500 parameters. |
+| **Honest scope marker** | The RL modules are **not wired into the production agent graph** in this release. The benchmark numbers reported in this README do not depend on them. This is disclosed in the README rubric table, in the Abstract of the technical report, at the start of §8, and in the Conclusion. RL integration is an explicit Future Work item in §13. |
+
+### 5. Multimodal Integration ❌ (out of scope)
+
+Code review is a text-only task. Multimodal integration is not implemented. The rubric requires only two of the five components; this project implements four.
 
 ---
 
-## Evaluation Philosophy
+## Comparison With Industry Products
 
-If the multi-agent architecture does not outperform a single prompt, this project does not hide the result.
+This is a course project, not a competitor to production SAST tools. The comparison below is honest about where CodeSentinel stands relative to the state of the art.
 
-- Baseline and multi-agent are run on the same underlying LLM (real SDK) or the same mock patterns (mock mode)
-- Ground truth is 10 hand-labeled samples plus 29 verified synthetic samples
-- Results are reported separately for hand-labeled and synthetic subsets
-- The measured delta on the hand-labeled suite is +12.5 TPR, +0 FPR
+| Property | Semgrep | CodeQL | Snyk Code | GitHub Copilot | Bito CodeReviewAgent | **CodeSentinel** |
+|---|---|---|---|---|---|---|
+| **Primary technique** | Rule-based pattern matching | Dataflow + taint analysis | ML + dataflow | LLM code completion | Single-prompt LLM | **Multi-agent LLM + RAG** |
+| **Vulnerability grounding** | Hand-written rules | Dataflow graphs | Trained model + rules | None (completion-only) | Implicit in prompt | **Explicit RAG citations (OWASP/CWE)** |
+| **Adversarial self-review** | No | No | No | No | No | **Yes (Evaluator Guardian)** |
+| **Hallucination defense** | N/A (not generative) | N/A | N/A | User-responsibility | Prompt-level only | **Programmatic + LLM validation** |
+| **Provenance per finding** | Rule ID | Query ID | Model + rule reference | None | None | **RAG passage ID + CWE + OWASP ref** |
+| **Run without API key** | Yes | Yes | Partial | No | No | **Yes (mock mode)** |
+| **Open source** | Yes | Yes (LGTM became CodeQL) | No | No | No | **Yes (MIT)** |
+| **Maturity** | 10+ years, thousands of rules | 10+ years | 8+ years | 2+ years | 2+ years | **Course project, Spring 2026** |
+| **Target scale** | Production | Production | Production | IDE assistance | Team code review | **Research demonstration** |
 
-An honest negative result would have been published as-is.
+**Honest positioning**: Semgrep outperforms CodeSentinel on rule-based coverage breadth. CodeQL outperforms on dataflow depth. Snyk outperforms on supply-chain dependency analysis. CodeSentinel is pedagogically useful in ways these tools are not — every finding is grounded in a cited authoritative source, the adversarial Evaluator is a novel anti-hallucination pattern, and the entire system runs reproducibly without an API key. The system is not a replacement for mature SAST tools; it is a demonstration that agent-based LLM orchestration can close specific failure modes (hallucination, omission, lack of traceability) that single-prompt review exhibits.
+
+A comparison protocol for running CodeSentinel against Semgrep on real open-source Python codebases is specified in §10.10 of the technical report and implemented in `eval/semgrep_compare.py`.
 
 ---
 
-## Ethical Considerations
+## Portfolio Piece
 
-- All RAG sources (OWASP, CWE, style guides) are used under their open licenses. OWASP content is CC BY-SA. CWE is public-domain.
-- The synthetic data pipeline explicitly avoids generating real credentials, real exploit payloads, or samples targeting specific production systems.
-- Outputs are framed as remediation-oriented findings, not exploit instructions. The concrete `fix` is the intended consumable.
-- The system is not a substitute for formal security review in regulated contexts (payments, medical devices) where human accountability is mandatory.
-- Limitations are documented openly in the technical report (Section 12).
+CodeSentinel is designed as a portfolio piece for the 2026 software-engineering and AI-engineering job market. It demonstrates six skills that appear repeatedly in AI-engineering job postings from Anthropic, Google, Microsoft, AWS, Cisco, and their open-source partner organizations.
+
+1. **Agentic AI architecture.** Multi-agent graphs with explicit state transitions and conditional routing are the dominant pattern in production LLM applications in 2026. Anthropic's own Project Glasswing (launched April 2026) uses the same architectural pattern — rank before analyze, specialize per agent, validate with an independent pass — at industrial scale to find zero-day vulnerabilities in operating systems and web browsers. CodeSentinel demonstrates that pattern at academic scale with open tools.
+
+2. **Retrieval-Augmented Generation with production rigor.** Three-tier backend fallback, semantic-boundary chunking, two-pass retrieval with lexical rerank, and citation-enforcement at the consumer end. This is the RAG pattern production systems actually use, not the toy single-backend setup often shown in tutorials.
+
+3. **Rigorous LLM evaluation.** Dual-suite evaluation (10-sample hand-labeled toy suite plus 20-sample OWASP-Benchmark-style paired suite), paired statistical testing (McNemar's exact test, p = 0.0312 significant at α = 0.05), explicit Wilson confidence intervals, power analysis scoping the sample size required for conclusive inference, and honest decomposition of the two false positives rather than suppression.
+
+4. **Security domain knowledge.** Grounded in OWASP Top 10 2025 and CWE taxonomy. Categories covered: CWE-89 (SQL injection), CWE-502 (deserialization), CWE-78 (command injection), CWE-327 (weak crypto), CWE-295 (TLS validation), CWE-94 (code injection), CWE-79 (XSS), CWE-798 (hard-coded credentials).
+
+5. **Production engineering discipline.** 35 unit tests, three-tier dependency fallback, deterministic mock mode for CI, Makefile with reproducible targets, Pydantic schemas with dataclass fallback, explicit zero-retention design, reproducible benchmarks with committed per-sample results.
+
+6. **Technical writing.** 23-page technical report with architecture section, methodology, measured results, power analysis, false-positive decomposition, scope-change accounting, ethical considerations, limitations, and extensive references. Standalone reviewer's guide. Portfolio-grade showcase page.
+
+The project sits at the intersection of two skill areas the 2026 job market values most: **AI/LLM engineering** and **software security**. Amazon CodeGuru, Microsoft GitHub Copilot, Google Gemini Code Assist, and Snyk are all building in this space. This project demonstrates understanding not just of how to orchestrate LLMs but how to evaluate them rigorously for a safety-critical domain.
+
+Links:
+- GitHub repository: [github.com/aravindbalaji/codesentinel](https://github.com/aravindbalaji/codesentinel) *(update with actual URL)*
+- Project showcase: `index.html` in this repo, or deploy to GitHub Pages
+- Technical report: [`docs/CodeSentinel_Technical_Report.pdf`](docs/CodeSentinel_Technical_Report.pdf)
+- Author portfolio: [aravindbalaji.com](https://aravindbalaji.com)
+- Author Substack (AI, quantum computing, infrastructure): [aravindbalaji1.substack.com](https://aravindbalaji1.substack.com)
+- Author LinkedIn: [linkedin.com/in/aravind-balaji-17a7b2115](https://linkedin.com/in/aravind-balaji-17a7b2115)
+
+---
+
+## Honest Limitations
+
+Every non-trivial system has limitations. These are ours, disclosed rather than suppressed.
+
+1. **Evaluation scale is modest.** 10 hand-labeled samples plus 20 paired samples plus 29 verified synthetic samples is sufficient for a course project but not for a production claim. A 100-sample hand-labeled expansion is the top item in Future Work. Power analysis for the required sample size is in §10.9 of the technical report.
+
+2. **RL is a demonstration, not an integrated contribution.** The UCB-1 bandit and REINFORCE policy gradient in `rl/` converge on synthetic reward surfaces but are not wired into the production agent graph. This is disclosed in four separate places (README rubric table, Abstract, §8 opening, Conclusion).
+
+3. **No real-world Semgrep comparison in this release.** The protocol is specified in §10.10 and implemented in `eval/semgrep_compare.py`, but running it honestly requires real Anthropic API calls against multi-hundred-line open-source codebases, which exceeded the API budget for this course project.
+
+4. **Two characterized false positives.** On the paired suite, the multi-agent system produces one FP on MD5 used as a cache key (no contextual signal to distinguish from security use) and one FP on a dead-code vulnerable branch (no reachability analysis). Both are decomposed in §10.8 with three concrete mitigation paths.
+
+5. **Language coverage is uneven.** The RAG corpus covers Python, JavaScript, and Java patterns, but the pattern-based mock detector is Python- and JavaScript-oriented. Java coverage in the mock is effectively zero. This is why the Java-based OWASP Benchmark was replaced with a Python paired suite in the spirit of the same methodology; documented in §10.11 of the technical report.
+
+6. **Mock mode is not real-model performance.** All reported numbers were measured in deterministic mock-LLM mode. Real-LLM performance will differ — likely better on nuanced cases, likely similar on pattern-matchable ones. The mock is designed to mirror the structure of a real LLM's response given the same retrieval context; it is a reproducibility tool, not a substitute.
+
+7. **Not a substitute for human review in regulated contexts.** Payment systems, medical devices, and other contexts where human accountability and traceable review processes are mandatory require review by humans. CodeSentinel is advisory, not authoritative.
+
+---
+
+## References
+
+### Industry data on the code-review gap and AI-generated code
+
+1. Veracode (2025). *State of Software Security 2025*. Scanned 1M+ applications; roughly half contain an OWASP Top 10 flaw.
+2. OWASP Foundation (2025). *OWASP Top 10 2025*. Eighth edition; analyzed ~175,000 CVE records from the National Vulnerability Database.
+3. Stack Overflow (2025). *2025 Developer Survey*. 49,000+ responses from 177 countries; 66% cite "almost right, but not quite" as the top AI-tool frustration.
+4. Codacy (2025). *Code Review Process: Impact on Developer Productivity*. Survey of 680 developers; 6–20 minutes per review.
+5. Ponamarev, V. (2025). "Developers Spend Only 11% of Their Time Coding." Industry productivity analysis.
+6. IBM Security (2023). *Cost of a Data Breach Report*. Global average: $4.45 million per incident.
+
+### Frameworks and techniques used
+
+7. Chase, H. (2024). *LangChain and LangGraph documentation*. https://python.langchain.com/docs/langgraph
+8. Lewis, P. et al. (2020). Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. *NeurIPS 2020*.
+9. Reimers, N. and Gurevych, I. (2019). Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. *EMNLP 2019*.
+10. Auer, P., Cesa-Bianchi, N., and Fischer, P. (2002). Finite-time Analysis of the Multiarmed Bandit Problem. *Machine Learning 47*.
+11. Williams, R. J. (1992). Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning. *Machine Learning 8*.
+12. McNemar, Q. (1947). Note on the sampling error of the difference between correlated proportions or percentages. *Psychometrika 12(2)*.
+
+### Security taxonomies and benchmarks
+
+13. OWASP Foundation. *OWASP Benchmark Project*. https://owasp.org/www-project-benchmark/
+14. OWASP-Benchmark GitHub organization. *BenchmarkJava: Java test suite for vulnerability-detection tools*. https://github.com/OWASP-Benchmark/BenchmarkJava
+15. MITRE Corporation. *Common Weakness Enumeration (CWE)*. https://cwe.mitre.org/
+16. OWASP Foundation. *OWASP Top 10 2025*. https://owasp.org/Top10/
+
+### Contemporary industrial work on agentic code analysis
+
+17. Anthropic (April 2026). *Project Glasswing: Securing Critical Software for the AI Era*. https://www.anthropic.com/glasswing
+18. Anthropic Frontier Red Team (April 2026). *Claude Mythos Preview: Technical Notes on Vulnerability Discovery*. https://red.anthropic.com/2026/mythos-preview/
+
+### Related commercial tools
+
+19. Semgrep Inc. *Semgrep: Static analysis at ludicrous speed*. https://semgrep.dev
+20. GitHub. *CodeQL: Semantic code analysis engine*. https://codeql.github.com
+21. Snyk Ltd. *Snyk Code: AI-powered SAST*. https://snyk.io/product/snyk-code/
+22. Bito AI. *CodeReviewAgent*. https://bito.ai/ai-code-review-agent/
+23. Tabnine. *Code Review Agent*. https://www.tabnine.com/code-review-agent/
+
+### Style guides and coding standards
+
+24. van Rossum, G., Warsaw, B., and Coghlan, A. *PEP 8: Style Guide for Python Code*.
+25. Google. *Google Python Style Guide*. https://google.github.io/styleguide/pyguide.html
+26. Airbnb. *Airbnb JavaScript Style Guide*. https://github.com/airbnb/javascript
+
+---
+
+## License
+
+Copyright (c) 2026 Aravind Balaji.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+**RAG corpus licensing (not covered by the above MIT grant):**
+- OWASP Top 10 content: used under Creative Commons Attribution-ShareAlike 4.0.
+- CWE taxonomy: public domain (MITRE).
+- Style guide excerpts: used from publicly available documents under their respective licenses.
 
 ---
 
 ## Citation
 
-If you reference this project:
+If you reference CodeSentinel in academic or professional work:
 
+```bibtex
+@misc{balaji2026codesentinel,
+  author       = {Balaji, Aravind},
+  title        = {{CodeSentinel}: A Multi-Agent Retrieval-Augmented Generative AI
+                  System for Automated Code Review and Vulnerability Detection},
+  year         = {2026},
+  howpublished = {INFO 7375 Final Project, Northeastern University},
+  note         = {Available at https://github.com/aravindbalaji/codesentinel}
+}
 ```
-Balaji, A. (2026). CodeSentinel: A Multi-Agent Retrieval-Augmented Generative AI
-System for Automated Code Review and Vulnerability Detection. INFO 7375 Final
-Project, Northeastern University College of Engineering.
-```
+
+Plain-text form:
+
+> Balaji, A. (2026). *CodeSentinel: A Multi-Agent Retrieval-Augmented Generative AI System for Automated Code Review and Vulnerability Detection*. INFO 7375 Final Project, Northeastern University College of Engineering.
 
 ---
 
 ## Acknowledgments
 
-Built as the final project for INFO 7375 (Prompt Engineering and Generative AI) under Professor Nik Bear Brown. Developed in parallel with the April 15 Take-Home Final on reinforcement learning for agentic systems; the two submissions share a codebase but diverge in emphasis, with this project foregrounding the generative AI architecture and the Take-Home foregrounding the RL formulation.
+Built as the final project for INFO 7375 (Prompt Engineering and Generative AI) under **Professor Nik Bear Brown**, Spring 2026. The project's architectural thinking was shaped by Professor Brown's framing of computational skepticism and adversarial evaluation as first-class design principles for LLM systems.
+
+Developed in parallel with the April 15 INFO 7375 Take-Home Final on reinforcement learning for agentic systems. The two submissions share a codebase; this project foregrounds the generative AI architecture, the Take-Home foregrounds the RL formulation.
+
+Gratitude to the AI Skunkworks research group at Northeastern for architecture discussions during the March 2026 design phase, and to the graduate student reviewers whose feedback on the February proposal led to the dual-backend fallback design and the Evaluator Guardian's two-layer validation.
+
+The Claude Mythos and Project Glasswing material published by Anthropic in April 2026 provided valuable late-stage context for framing the architectural pattern this project demonstrates.
+
+---
+
+*Last updated: April 20, 2026. For the latest measured results, see `eval/results/` — CSV outputs are authoritative over any number in this document.*

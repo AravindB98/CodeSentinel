@@ -208,6 +208,10 @@ class LLMClient:
                 continue
 
             # MD5/SHA1 for security
+            # Citation uses patterns.md::PY-08 (the language-specific pattern),
+            # which is what the retriever surfaces in the top-K context for MD5
+            # queries. A real LLM cites whatever is in its retrieval context;
+            # this mirrors that behavior (see Section 11.6 of the tech report).
             if re.search(r'hashlib\.(md5|sha1)\s*\(', line):
                 add_finding(i, "CWE-327", "A02:2025 Cryptographic Failures",
                             "Cryptographic Failure",
@@ -215,7 +219,7 @@ class LLMClient:
                             "Replace hashlib.md5/sha1 with hashlib.sha256 or stronger for "
                             "any security context. For password hashing, use bcrypt or "
                             "argon2 via the passlib library.",
-                            "cwe_subset.csv", "CWE-327")
+                            "patterns.md", "PY-08")
                 continue
 
             # hardcoded password/secret

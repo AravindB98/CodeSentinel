@@ -1,0 +1,224 @@
+{
+  "version": "1.0",
+  "description": "OWASP-Benchmark-style paired evaluation suite for Python. Each category has a true-positive case (genuinely vulnerable) and a false-positive trap (looks similar but is safe). This format mirrors the OWASP Benchmark Project's methodology of pairing exploitable and non-exploitable test cases to measure detector accuracy rather than mere sensitivity. A detector that flags everything scores TPR=1.0 but also flags every safe case. The Youden index (TPR - FPR) captures real discrimination.",
+  "methodology_notes": [
+    "Each category tests ONE CWE class.",
+    "The true-positive (TP) case contains a real, exploitable vulnerability.",
+    "The false-positive (FP) case looks superficially similar but applies a mitigation.",
+    "ground_truth is empty [] for FP cases; any finding on an FP case is a false positive.",
+    "Samples are inspired by the OWASP Benchmark's test case patterns (dead code, misleading data flow, safe wrapper detection) adapted to Python.",
+    "This is NOT a clone of the OWASP Benchmark (which is Java). It is an evaluation in the same spirit on the same CWE categories."
+  ],
+  "samples": [
+    {
+      "sample_id": "PAIR-SQLI-TP",
+      "category": "sqli",
+      "pair": "A",
+      "language": "python",
+      "real_vulnerability": true,
+      "code": "import sqlite3\nfrom flask import request\n\ndef get_user():\n    user_id = request.args.get(\"id\")\n    conn = sqlite3.connect(\"users.db\")\n    cur = conn.cursor()\n    cur.execute(f\"SELECT * FROM users WHERE id = {user_id}\")\n    return cur.fetchone()\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-89", "line_start": 8, "line_end": 8, "severity": "CRITICAL"}
+      ]
+    },
+    {
+      "sample_id": "PAIR-SQLI-FP",
+      "category": "sqli",
+      "pair": "A",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "Parameterized query — ? placeholder is the mitigation. Any finding is a false positive.",
+      "code": "import sqlite3\nfrom flask import request\n\ndef get_user():\n    user_id = request.args.get(\"id\")\n    with sqlite3.connect(\"users.db\") as conn:\n        cur = conn.cursor()\n        cur.execute(\"SELECT * FROM users WHERE id = ?\", (user_id,))\n        return cur.fetchone()\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-DESER-TP",
+      "category": "deserialization",
+      "pair": "B",
+      "language": "python",
+      "real_vulnerability": true,
+      "code": "import pickle\nfrom flask import request\n\ndef load_state():\n    blob = request.get_data()\n    return pickle.loads(blob)\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-502", "line_start": 5, "line_end": 5, "severity": "CRITICAL"}
+      ]
+    },
+    {
+      "sample_id": "PAIR-DESER-FP",
+      "category": "deserialization",
+      "pair": "B",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "json.loads is safe. Variable is named 'pickled_data' to test whether naming can mislead a detector. The actual function is json, not pickle.",
+      "code": "import json\nfrom flask import request\n\ndef load_state():\n    pickled_data = request.get_data()\n    return json.loads(pickled_data)\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-CMDI-TP",
+      "category": "command_injection",
+      "pair": "C",
+      "language": "python",
+      "real_vulnerability": true,
+      "code": "import subprocess\nfrom flask import request\n\ndef ping():\n    host = request.args.get(\"host\")\n    result = subprocess.run(f\"ping -c 1 {host}\", shell=True, capture_output=True)\n    return result.stdout\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-78", "line_start": 6, "line_end": 6, "severity": "HIGH"}
+      ]
+    },
+    {
+      "sample_id": "PAIR-CMDI-FP",
+      "category": "command_injection",
+      "pair": "C",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "shell=False is the default when argv is a list. No shell interpretation, no injection.",
+      "code": "import subprocess\nfrom flask import request\n\ndef ping():\n    host = request.args.get(\"host\")\n    result = subprocess.run([\"ping\", \"-c\", \"1\", host], capture_output=True)\n    return result.stdout\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-CRYPTO-TP",
+      "category": "weak_crypto",
+      "pair": "D",
+      "language": "python",
+      "real_vulnerability": true,
+      "code": "import hashlib\n\ndef hash_password(pw: str) -> str:\n    return hashlib.md5(pw.encode()).hexdigest()\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-327", "line_start": 4, "line_end": 4, "severity": "MEDIUM"}
+      ]
+    },
+    {
+      "sample_id": "PAIR-CRYPTO-FP",
+      "category": "weak_crypto",
+      "pair": "D",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "MD5 is acceptable for non-security cache keys. Detector should not flag every hashlib.md5 call, only security-relevant uses. Note the function name and docstring: this is documented as a cache key.",
+      "code": "import hashlib\n\ndef cache_key_for_asset(asset_path: str) -> str:\n    \"\"\"Non-security cache key. MD5 is fine for content-addressed caching.\"\"\"\n    return hashlib.md5(asset_path.encode()).hexdigest()\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-YAML-TP",
+      "category": "unsafe_deserialization",
+      "pair": "E",
+      "language": "python",
+      "real_vulnerability": true,
+      "code": "import yaml\nfrom flask import request\n\ndef upload_config():\n    return yaml.load(request.data)\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-502", "line_start": 5, "line_end": 5, "severity": "HIGH"}
+      ]
+    },
+    {
+      "sample_id": "PAIR-YAML-FP",
+      "category": "unsafe_deserialization",
+      "pair": "E",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "yaml.safe_load is the documented fix and must not be flagged.",
+      "code": "import yaml\nfrom flask import request\n\ndef upload_config():\n    return yaml.safe_load(request.data)\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-TLS-TP",
+      "category": "tls",
+      "pair": "F",
+      "language": "python",
+      "real_vulnerability": true,
+      "code": "import requests\n\ndef fetch_partner_data():\n    return requests.get(\"https://partner.example.com/api\", verify=False).json()\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-295", "line_start": 4, "line_end": 4, "severity": "HIGH"}
+      ]
+    },
+    {
+      "sample_id": "PAIR-TLS-FP",
+      "category": "tls",
+      "pair": "F",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "Default verify=True (omitted means True). TLS verification is enabled.",
+      "code": "import requests\n\ndef fetch_partner_data():\n    return requests.get(\"https://partner.example.com/api\").json()\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-EVAL-TP",
+      "category": "code_injection",
+      "pair": "G",
+      "language": "python",
+      "real_vulnerability": true,
+      "code": "from flask import request\n\ndef compute():\n    expr = request.args.get(\"expr\")\n    return eval(expr)\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-94", "line_start": 5, "line_end": 5, "severity": "CRITICAL"}
+      ]
+    },
+    {
+      "sample_id": "PAIR-EVAL-FP",
+      "category": "code_injection",
+      "pair": "G",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "ast.literal_eval is safe: it parses literals only, not arbitrary expressions. Variable still named 'expr' to test whether naming misleads the detector.",
+      "code": "import ast\nfrom flask import request\n\ndef compute():\n    expr = request.args.get(\"expr\")\n    return ast.literal_eval(expr)\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-SECRET-TP",
+      "category": "hardcoded_secret",
+      "pair": "H",
+      "language": "python",
+      "real_vulnerability": true,
+      "code": "import requests\n\nAPI_KEY = \"sk-live-1234567890abcdefghijklmnopqrstuvwxyz\"\n\ndef fetch():\n    return requests.get(\"https://api.example.com\", headers={\"X-Key\": API_KEY})\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-798", "line_start": 3, "line_end": 3, "severity": "HIGH"}
+      ]
+    },
+    {
+      "sample_id": "PAIR-SECRET-FP",
+      "category": "hardcoded_secret",
+      "pair": "H",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "Secret loaded from environment. Variable is still named API_KEY to test whether the constant-naming convention alone triggers a false positive.",
+      "code": "import os\nimport requests\n\nAPI_KEY = os.environ[\"PARTNER_API_KEY\"]\n\ndef fetch():\n    return requests.get(\"https://api.example.com\", headers={\"X-Key\": API_KEY})\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-SQLI-FORMAT-TP",
+      "category": "sqli",
+      "pair": "I",
+      "language": "python",
+      "real_vulnerability": true,
+      "comment": "SQL injection via .format(). A secondary TP to test that the detector catches non-fstring concatenation too.",
+      "code": "import sqlite3\nfrom flask import request\n\ndef search():\n    term = request.args.get(\"q\")\n    conn = sqlite3.connect(\"db\")\n    cur = conn.cursor()\n    cur.execute(\"SELECT * FROM items WHERE name LIKE '%{}%'\".format(term))\n    return cur.fetchall()\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-89", "line_start": 8, "line_end": 8, "severity": "CRITICAL"}
+      ]
+    },
+    {
+      "sample_id": "PAIR-DEADCODE-FP",
+      "category": "sqli",
+      "pair": "I",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "The vulnerable branch is dead code (constant condition is always False). A sophisticated false-positive trap inspired by the OWASP Benchmark's dead-code tricks. A naive pattern detector flags the f-string execute; a semantic detector realizes the branch never runs. The mock detector may still flag this and report it as a known limitation.",
+      "code": "import sqlite3\nfrom flask import request\n\ndef search():\n    term = request.args.get(\"q\")\n    conn = sqlite3.connect(\"db\")\n    cur = conn.cursor()\n    DEBUG = False\n    if DEBUG and False:\n        cur.execute(f\"SELECT * FROM items WHERE name = '{term}'\")\n    else:\n        cur.execute(\"SELECT * FROM items WHERE name = ?\", (term,))\n    return cur.fetchall()\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-CLEAN-HANDLER",
+      "category": "clean",
+      "pair": "J",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "Entirely clean handler with parameterized query, env-var secret, and safe output. Any finding is a false positive.",
+      "code": "import os\nimport sqlite3\nfrom flask import request, jsonify\n\nDB_PATH = os.environ[\"DB_PATH\"]\n\ndef list_items():\n    category = request.args.get(\"category\", \"all\")\n    with sqlite3.connect(DB_PATH) as conn:\n        cur = conn.cursor()\n        cur.execute(\"SELECT id, name FROM items WHERE category = ?\", (category,))\n        rows = cur.fetchall()\n    return jsonify([{\"id\": r[0], \"name\": r[1]} for r in rows])\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "PAIR-CLEAN-CRYPTO",
+      "category": "clean",
+      "pair": "K",
+      "language": "python",
+      "real_vulnerability": false,
+      "comment": "Proper password hashing with bcrypt. Any CWE-327 finding is a false positive.",
+      "code": "import bcrypt\n\ndef hash_password(pw: str) -> bytes:\n    return bcrypt.hashpw(pw.encode(), bcrypt.gensalt())\n\ndef verify_password(pw: str, stored: bytes) -> bool:\n    return bcrypt.checkpw(pw.encode(), stored)\n",
+      "ground_truth": []
+    }
+  ]
+}
