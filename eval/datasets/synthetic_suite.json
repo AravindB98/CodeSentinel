@@ -1,0 +1,365 @@
+{
+  "version": "1.0",
+  "description": "Verified synthetic samples.",
+  "samples": [
+    {
+      "sample_id": "SYN-001",
+      "language": "javascript",
+      "code": "document.getElementById('welcome').innerHTML =\n  'Hello, ' + new URLSearchParams(location.search).get('name');\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-79",
+          "line_start": 1,
+          "line_end": 1,
+          "severity": "HIGH"
+        }
+      ],
+      "explanation": "innerHTML with URL-derived content is reflected XSS; use textContent.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-001-SAFE",
+      "language": "javascript",
+      "code": "document.getElementById('welcome').textContent =\n  'Hello, ' + new URLSearchParams(location.search).get('name');\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-001",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-002",
+      "language": "python",
+      "code": "from flask import Flask, request, send_file\napp = Flask(__name__)\n\n@app.route(\"/file\")\ndef get_file():\n    name = request.args.get(\"name\")\n    return send_file(f\"/var/uploads/{name}\")\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-22",
+          "line_start": 7,
+          "line_end": 7,
+          "severity": "HIGH"
+        }
+      ],
+      "explanation": "User-controlled filename allows path traversal; resolve and bound to base.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-002-SAFE",
+      "language": "python",
+      "code": "from pathlib import Path\nfrom flask import Flask, request, send_file, abort\napp = Flask(__name__)\n\n@app.route(\"/file\")\ndef get_file():\n    name = request.args.get(\"name\", \"\")\n    base = Path(\"/var/uploads\").resolve()\n    target = (base / name).resolve()\n    if not target.is_relative_to(base) or not target.is_file():\n        abort(404)\n    return send_file(str(target))\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-002",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-003",
+      "language": "python",
+      "code": "from flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/calc\")\ndef calc():\n    expr = request.args.get(\"expr\", \"\")\n    return {\"result\": eval(expr)}\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-94",
+          "line_start": 7,
+          "line_end": 7,
+          "severity": "CRITICAL"
+        }
+      ],
+      "explanation": "eval on user input is RCE; use a sandboxed evaluator like simpleeval.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-003-SAFE",
+      "language": "python",
+      "code": "from flask import Flask, request\nfrom simpleeval import simple_eval\napp = Flask(__name__)\n\n@app.route(\"/calc\")\ndef calc():\n    expr = request.args.get(\"expr\", \"\")\n    return {\"result\": simple_eval(expr)}\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-003",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-004",
+      "language": "javascript",
+      "code": "const { exec } = require('child_process');\n\napp.get('/ping', (req, res) => {\n  const host = req.query.host;\n  exec(`ping -c 1 ${host}`, (err, stdout) => {\n    res.send(stdout);\n  });\n});\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-78",
+          "line_start": 5,
+          "line_end": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "explanation": "exec with template literal interpolates user input into a shell command.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-004-SAFE",
+      "language": "javascript",
+      "code": "const { execFile } = require('child_process');\n\napp.get('/ping', (req, res) => {\n  const host = req.query.host;\n  if (!/^[A-Za-z0-9.-]+$/.test(host || '')) return res.status(400).send('bad host');\n  execFile('ping', ['-c', '1', host], (err, stdout) => {\n    res.send(stdout);\n  });\n});\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-004",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-005-SAFE",
+      "language": "javascript",
+      "code": "const ALLOWED = ['name', 'email'];\nfunction updateUser(target, userInput) {\n  for (const k of ALLOWED) if (k in userInput) target[k] = userInput[k];\n  return target;\n}\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-005",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-006",
+      "language": "java",
+      "code": "import javax.xml.parsers.*;\nimport org.w3c.dom.Document;\nimport java.io.InputStream;\n\npublic class ConfigLoader {\n    public Document parse(InputStream in) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        return f.newDocumentBuilder().parse(in);\n    }\n}\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-611",
+          "line_start": 7,
+          "line_end": 8,
+          "severity": "HIGH"
+        }
+      ],
+      "explanation": "Default XML parser allows external entities; disable DTD.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-006-SAFE",
+      "language": "java",
+      "code": "import javax.xml.parsers.*;\nimport org.w3c.dom.Document;\nimport java.io.InputStream;\n\npublic class ConfigLoader {\n    public Document parse(InputStream in) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        f.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\n        return f.newDocumentBuilder().parse(in);\n    }\n}\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-006",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-007",
+      "language": "python",
+      "code": "import subprocess\nfrom flask import request\n\ndef tail_log():\n    logfile = request.args.get(\"file\")\n    return subprocess.check_output(f\"tail -n 50 {logfile}\", shell=True)\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-78",
+          "line_start": 6,
+          "line_end": 6,
+          "severity": "HIGH"
+        }
+      ],
+      "explanation": "shell=True with user-controlled path allows command injection.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-007-SAFE",
+      "language": "python",
+      "code": "import subprocess\nfrom pathlib import Path\nfrom flask import request\n\ndef tail_log():\n    logfile = request.args.get(\"file\", \"\")\n    safe_base = Path(\"/var/log\").resolve()\n    target = (safe_base / logfile).resolve()\n    if not target.is_relative_to(safe_base):\n        return {\"error\": \"invalid path\"}, 400\n    return subprocess.check_output([\"tail\", \"-n\", \"50\", str(target)])\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-007",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-008",
+      "language": "java",
+      "code": "import java.sql.*;\n\npublic class Lookup {\n    public static ResultSet find(Connection conn, String userId) throws SQLException {\n        Statement stmt = conn.createStatement();\n        return stmt.executeQuery(\"SELECT * FROM users WHERE id = \" + userId);\n    }\n}\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-89",
+          "line_start": 6,
+          "line_end": 6,
+          "severity": "CRITICAL"
+        }
+      ],
+      "explanation": "String concatenation builds SQL; switch to PreparedStatement with placeholders.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-008-SAFE",
+      "language": "java",
+      "code": "import java.sql.*;\n\npublic class Lookup {\n    public static ResultSet find(Connection conn, String userId) throws SQLException {\n        PreparedStatement ps = conn.prepareStatement(\"SELECT * FROM users WHERE id = ?\");\n        ps.setString(1, userId);\n        return ps.executeQuery();\n    }\n}\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-008",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-009",
+      "language": "python",
+      "code": "import requests\n\ndef get_upstream(url):\n    return requests.get(url, verify=False).json()\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-295",
+          "line_start": 4,
+          "line_end": 4,
+          "severity": "HIGH"
+        }
+      ],
+      "explanation": "verify=False disables TLS verification; remove it.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-009-SAFE",
+      "language": "python",
+      "code": "import requests\n\ndef get_upstream(url):\n    return requests.get(url).json()\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-009",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-010",
+      "language": "python",
+      "code": "import pickle\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/state\", methods=[\"POST\"])\ndef restore_state():\n    state = pickle.loads(request.data)\n    return {\"loaded\": bool(state)}\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-502",
+          "line_start": 7,
+          "line_end": 7,
+          "severity": "CRITICAL"
+        }
+      ],
+      "explanation": "pickle.loads on request data is RCE; use json.loads with a schema.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-010-SAFE",
+      "language": "python",
+      "code": "import json\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/state\", methods=[\"POST\"])\ndef restore_state():\n    state = json.loads(request.data)\n    return {\"loaded\": bool(state)}\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-010",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-011",
+      "language": "java",
+      "code": "import java.io.*;\n\npublic class Sessions {\n    public Object restore(InputStream in) throws IOException, ClassNotFoundException {\n        ObjectInputStream ois = new ObjectInputStream(in);\n        return ois.readObject();\n    }\n}\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-502",
+          "line_start": 6,
+          "line_end": 6,
+          "severity": "CRITICAL"
+        }
+      ],
+      "explanation": "ObjectInputStream.readObject on untrusted streams enables deserialization RCE.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-011-SAFE",
+      "language": "java",
+      "code": "import com.fasterxml.jackson.databind.ObjectMapper;\nimport java.io.*;\n\npublic class Sessions {\n    public SessionDto restore(InputStream in) throws IOException {\n        return new ObjectMapper().readValue(in, SessionDto.class);\n    }\n}\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-011",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-012",
+      "language": "python",
+      "code": "import requests\n\nAPI_KEY = \"sk_live_4eC39HqLyjWDarjtT1zdp7dc\"\n\ndef get(url):\n    return requests.get(url, headers={\"Authorization\": f\"Bearer {API_KEY}\"})\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-798",
+          "line_start": 3,
+          "line_end": 3,
+          "severity": "HIGH"
+        }
+      ],
+      "explanation": "Hardcoded API key; load from environment or secrets manager.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-012-SAFE",
+      "language": "python",
+      "code": "import os, requests\n\nAPI_KEY = os.environ[\"UPSTREAM_API_KEY\"]\n\ndef get(url):\n    return requests.get(url, headers={\"Authorization\": f\"Bearer {API_KEY}\"})\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-012",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-013",
+      "language": "python",
+      "code": "import sqlite3\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/search\")\ndef search():\n    term = request.args.get(\"q\", \"\")\n    conn = sqlite3.connect(\"products.db\")\n    cur = conn.cursor()\n    cur.execute(f\"SELECT * FROM products WHERE name LIKE '%{term}%'\")\n    return {{\"results\": cur.fetchall()}}\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-89",
+          "line_start": 9,
+          "line_end": 9,
+          "severity": "CRITICAL"
+        }
+      ],
+      "explanation": "User-supplied term is concatenated into SQL via f-string; parameterize.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-013-SAFE",
+      "language": "python",
+      "code": "import sqlite3\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/search\")\ndef search():\n    term = request.args.get(\"q\", \"\")\n    conn = sqlite3.connect(\"products.db\")\n    cur = conn.cursor()\n    cur.execute(\"SELECT * FROM products WHERE name LIKE ?\", (f\"%{{term}}%\",))\n    return {{\"results\": cur.fetchall()}}\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-013",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-014",
+      "language": "javascript",
+      "code": "const express = require('express');\nconst mysql = require('mysql');\nconst app = express();\nconst db = mysql.createConnection({host: 'localhost'});\n\napp.get('/order', (req, res) => {\n  const id = req.query.id;\n  db.query(`SELECT * FROM orders WHERE id = ${id}`, (err, rows) => {\n    res.json(rows);\n  });\n});\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-89",
+          "line_start": 8,
+          "line_end": 8,
+          "severity": "CRITICAL"
+        }
+      ],
+      "explanation": "Template literal interpolates user input into SQL; use parameterized query.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-014-SAFE",
+      "language": "javascript",
+      "code": "const express = require('express');\nconst mysql = require('mysql');\nconst app = express();\nconst db = mysql.createConnection({host: 'localhost'});\n\napp.get('/order', (req, res) => {\n  const id = req.query.id;\n  db.query('SELECT * FROM orders WHERE id = ?', [id], (err, rows) => {\n    res.json(rows);\n  });\n});\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-014",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-015",
+      "language": "python",
+      "code": "import hashlib\n\ndef store_password(username, password):\n    digest = hashlib.md5(password.encode()).hexdigest()\n    save_user(username, digest)\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-327",
+          "line_start": 4,
+          "line_end": 4,
+          "severity": "MEDIUM"
+        }
+      ],
+      "explanation": "MD5 is a broken password hash; use bcrypt or argon2.",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    },
+    {
+      "sample_id": "SYN-015-SAFE",
+      "language": "python",
+      "code": "import bcrypt\n\ndef store_password(username, password):\n    digest = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()\n    save_user(username, digest)\n",
+      "ground_truth": [],
+      "explanation": "Safe variant of SYN-015",
+      "is_synthetic": true,
+      "source": "synth.generate"
+    }
+  ]
+}

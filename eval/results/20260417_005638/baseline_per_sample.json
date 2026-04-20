@@ -1,0 +1,172 @@
+[
+  {
+    "sample_id": "TOY-001",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "CRITICAL",
+        "confidence": 0.82,
+        "line_start": 10,
+        "line_end": 10
+      }
+    ],
+    "elapsed_sec": 0.001,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-002",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "TOY-003",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-502",
+        "category": "Deserialization",
+        "severity": "CRITICAL",
+        "confidence": 0.78,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-004",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-78",
+        "category": "Command Injection",
+        "severity": "HIGH",
+        "confidence": 0.75,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-005",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "num_pred": 0,
+    "num_gt": 1,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "TOY-006",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-295",
+        "category": "Certificate Validation",
+        "severity": "HIGH",
+        "confidence": 0.8,
+        "line_start": 4,
+        "line_end": 4
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-007",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "TOY-008",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "CRITICAL",
+        "confidence": 0.8,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-009",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-79",
+        "category": "XSS",
+        "severity": "HIGH",
+        "confidence": 0.72,
+        "line_start": 1,
+        "line_end": 1
+      }
+    ],
+    "elapsed_sec": 0.0,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-010",
+    "predictions": [],
+    "elapsed_sec": 0.0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "num_pred": 0,
+    "num_gt": 1,
+    "cwe_correct": 0
+  }
+]

@@ -1,0 +1,32 @@
+# CodeSentinel - Pinned Dependencies
+# Tested against Python 3.11+
+
+# --- Agent orchestration ---
+langgraph>=0.2.50,<0.3.0
+langchain-core>=0.3.0,<0.4.0
+
+# --- LLM ---
+anthropic>=0.40.0,<1.0.0
+
+# --- Schemas ---
+pydantic>=2.6.0,<3.0.0
+
+# --- RAG ---
+chromadb>=0.5.0,<1.0.0
+sentence-transformers>=2.7.0,<4.0.0
+
+# --- Fallback retrieval path (also used for RL components) ---
+scikit-learn>=1.4.0,<2.0.0
+numpy>=1.26.0,<3.0.0
+
+# --- UI ---
+streamlit>=1.38.0,<2.0.0
+
+# --- Optional RL (lightweight policy network) ---
+# torch is optional. If absent, rl/policy.py degrades to a NumPy-only
+# tabular policy. Uncomment to pin:
+# torch>=2.3.0,<3.0.0
+
+# --- Dev ---
+pytest>=8.0.0,<9.0.0
+python-dotenv>=1.0.0,<2.0.0

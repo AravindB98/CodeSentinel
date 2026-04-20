@@ -1,0 +1,82 @@
+{
+  "version": "1.0",
+  "description": "10 hand-labeled code samples for CodeSentinel evaluation.",
+  "samples": [
+    {
+      "sample_id": "TOY-001",
+      "language": "python",
+      "code": "import sqlite3\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/user\")\ndef get_user():\n    user_id = request.args.get(\"id\")\n    conn = sqlite3.connect(\"users.db\")\n    cur = conn.cursor()\n    cur.execute(f\"SELECT * FROM users WHERE id = {user_id}\")\n    return cur.fetchone()\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-89", "line_start": 10, "line_end": 10, "severity": "CRITICAL"}
+      ]
+    },
+    {
+      "sample_id": "TOY-002",
+      "language": "python",
+      "code": "import sqlite3\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/user\")\ndef get_user():\n    user_id = request.args.get(\"id\")\n    conn = sqlite3.connect(\"users.db\")\n    cur = conn.cursor()\n    cur.execute(\"SELECT * FROM users WHERE id = ?\", (user_id,))\n    return cur.fetchone()\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "TOY-003",
+      "language": "python",
+      "code": "import pickle\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/restore\", methods=[\"POST\"])\ndef restore_session():\n    data = request.data\n    session = pickle.loads(data)\n    return {\"ok\": True, \"user\": session.get(\"user\")}\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-502", "line_start": 8, "line_end": 8, "severity": "CRITICAL"}
+      ]
+    },
+    {
+      "sample_id": "TOY-004",
+      "language": "python",
+      "code": "import subprocess\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/ls\")\ndef list_dir():\n    path = request.args.get(\"path\", \".\")\n    result = subprocess.run(f\"ls {path}\", shell=True, capture_output=True, text=True)\n    return result.stdout\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-78", "line_start": 8, "line_end": 8, "severity": "HIGH"}
+      ]
+    },
+    {
+      "sample_id": "TOY-005",
+      "language": "python",
+      "code": "import hashlib\n\ndef store_password(username, password):\n    digest = hashlib.md5(password.encode()).hexdigest()\n    with open(\"users.txt\", \"a\") as f:\n        f.write(f\"{username}:{digest}\\n\")\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-327", "line_start": 4, "line_end": 4, "severity": "MEDIUM"}
+      ]
+    },
+    {
+      "sample_id": "TOY-006",
+      "language": "python",
+      "code": "import requests\n\ndef fetch_upstream(url):\n    r = requests.get(url, verify=False)\n    return r.json()\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-295", "line_start": 4, "line_end": 4, "severity": "HIGH"}
+      ]
+    },
+    {
+      "sample_id": "TOY-007",
+      "language": "python",
+      "code": "import os\nimport requests\n\nAPI_KEY = os.environ[\"UPSTREAM_API_KEY\"]\n\ndef call(endpoint):\n    return requests.get(f\"https://api.example.com/{endpoint}\", headers={\"Authorization\": f\"Bearer {API_KEY}\"}).json()\n",
+      "ground_truth": []
+    },
+    {
+      "sample_id": "TOY-008",
+      "language": "javascript",
+      "code": "const express = require('express');\nconst mysql = require('mysql');\nconst app = express();\nconst db = mysql.createConnection({host: 'localhost'});\n\napp.get('/user', (req, res) => {\n  const userId = req.query.id;\n  db.query(`SELECT * FROM users WHERE id = ${userId}`, (err, rows) => {\n    res.json(rows);\n  });\n});\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-89", "line_start": 8, "line_end": 8, "severity": "CRITICAL"}
+      ]
+    },
+    {
+      "sample_id": "TOY-009",
+      "language": "javascript",
+      "code": "document.getElementById('greeting').innerHTML = 'Hello, ' + userName;\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-79", "line_start": 1, "line_end": 1, "severity": "HIGH"}
+      ]
+    },
+    {
+      "sample_id": "TOY-010",
+      "language": "python",
+      "code": "from flask import Flask, request\nimport yaml\napp = Flask(__name__)\n\n@app.route('/config', methods=['POST'])\ndef upload_config():\n    config = yaml.load(request.data)\n    return {'loaded': list(config.keys())}\n",
+      "ground_truth": [
+        {"cwe_id": "CWE-502", "line_start": 7, "line_end": 7, "severity": "HIGH"}
+      ]
+    }
+  ]
+}

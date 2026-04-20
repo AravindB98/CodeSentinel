@@ -1,0 +1,21 @@
+{
+  "samples": [
+    {
+      "sample_id": "SYN-005",
+      "language": "javascript",
+      "code": "function updateUser(target, userInput) {\n  Object.assign(target, userInput);\n  return target;\n}\n",
+      "ground_truth": [
+        {
+          "cwe_id": "CWE-915",
+          "line_start": 2,
+          "line_end": 2,
+          "severity": "MEDIUM"
+        }
+      ],
+      "explanation": "Object.assign with user input allows prototype pollution; use an allow-list.",
+      "is_synthetic": true,
+      "source": "synth.generate",
+      "rejection_reason": "claimed CWE-915 but no detector matched"
+    }
+  ]
+}

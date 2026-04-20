@@ -1,0 +1,11 @@
+sample_id,baseline_tp,baseline_fp,baseline_fn,multi_tp,multi_fp,multi_fn
+TOY-001,1,0,0,1,0,0
+TOY-002,0,0,0,0,0,0
+TOY-003,1,0,0,1,0,0
+TOY-004,1,0,0,1,0,0
+TOY-005,0,0,1,0,0,1
+TOY-006,1,0,0,1,0,0
+TOY-007,0,0,0,0,0,0
+TOY-008,1,0,0,1,0,0
+TOY-009,1,0,0,1,0,0
+TOY-010,0,0,1,1,0,0

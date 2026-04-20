@@ -1,0 +1,389 @@
+[
+  {
+    "sample_id": "TOY-001",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "CRITICAL",
+        "confidence": 0.94,
+        "line_start": 10,
+        "line_end": 10
+      }
+    ],
+    "raw_all": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "CRITICAL",
+        "confidence": 0.94,
+        "line_start": 10,
+        "line_end": 10
+      }
+    ],
+    "elapsed_sec": 3.852,
+    "retries": {
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
+    },
+    "trace": [
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: APPROVED (approved=1, rejected=0)",
+      "assemble_report: done"
+    ],
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-002",
+    "predictions": [],
+    "raw_all": [],
+    "elapsed_sec": 0.002,
+    "retries": {
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
+    },
+    "trace": [
+      "security_sentinel: produced 0 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: APPROVED (approved=0, rejected=0)",
+      "assemble_report: done"
+    ],
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "TOY-003",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-502",
+        "category": "Deserialization",
+        "severity": "CRITICAL",
+        "confidence": 0.96,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "raw_all": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-502",
+        "category": "Deserialization",
+        "severity": "CRITICAL",
+        "confidence": 0.96,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "elapsed_sec": 0.002,
+    "retries": {
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
+    },
+    "trace": [
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: APPROVED (approved=1, rejected=0)",
+      "assemble_report: done"
+    ],
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-004",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-78",
+        "category": "Command Injection",
+        "severity": "HIGH",
+        "confidence": 0.88,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "raw_all": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-78",
+        "category": "Command Injection",
+        "severity": "HIGH",
+        "confidence": 0.88,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "elapsed_sec": 0.002,
+    "retries": {
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
+    },
+    "trace": [
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: APPROVED (approved=1, rejected=0)",
+      "assemble_report: done"
+    ],
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-005",
+    "predictions": [],
+    "raw_all": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-327",
+        "category": "Cryptographic Failure",
+        "severity": "MEDIUM",
+        "confidence": 0.75,
+        "line_start": 4,
+        "line_end": 4
+      }
+    ],
+    "elapsed_sec": 0.004,
+    "retries": {
+      "security_sentinel": 3,
+      "code_quality_auditor": 3,
+      "evaluator": 3
+    },
+    "trace": [
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: REJECTED (approved=0, rejected=1)",
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: REJECTED (approved=0, rejected=1)",
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: REJECTED (approved=0, rejected=1)",
+      "circuit_breaker: max retries reached, terminating",
+      "assemble_report: done"
+    ],
+    "tp": 0,
+    "fp": 0,
+    "fn": 1,
+    "num_pred": 0,
+    "num_gt": 1,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "TOY-006",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-295",
+        "category": "Certificate Validation",
+        "severity": "HIGH",
+        "confidence": 0.9,
+        "line_start": 4,
+        "line_end": 4
+      }
+    ],
+    "raw_all": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-295",
+        "category": "Certificate Validation",
+        "severity": "HIGH",
+        "confidence": 0.9,
+        "line_start": 4,
+        "line_end": 4
+      }
+    ],
+    "elapsed_sec": 0.002,
+    "retries": {
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
+    },
+    "trace": [
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: APPROVED (approved=1, rejected=0)",
+      "assemble_report: done"
+    ],
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-007",
+    "predictions": [],
+    "raw_all": [],
+    "elapsed_sec": 0.002,
+    "retries": {
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
+    },
+    "trace": [
+      "security_sentinel: produced 0 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: APPROVED (approved=0, rejected=0)",
+      "assemble_report: done"
+    ],
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 0,
+    "num_gt": 0,
+    "cwe_correct": 0
+  },
+  {
+    "sample_id": "TOY-008",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "CRITICAL",
+        "confidence": 0.93,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "raw_all": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-89",
+        "category": "Injection",
+        "severity": "CRITICAL",
+        "confidence": 0.93,
+        "line_start": 8,
+        "line_end": 8
+      }
+    ],
+    "elapsed_sec": 0.002,
+    "retries": {
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
+    },
+    "trace": [
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: APPROVED (approved=1, rejected=0)",
+      "assemble_report: done"
+    ],
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-009",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-79",
+        "category": "Cross-Site Scripting",
+        "severity": "HIGH",
+        "confidence": 0.8,
+        "line_start": 1,
+        "line_end": 1
+      }
+    ],
+    "raw_all": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-79",
+        "category": "Cross-Site Scripting",
+        "severity": "HIGH",
+        "confidence": 0.8,
+        "line_start": 1,
+        "line_end": 1
+      }
+    ],
+    "elapsed_sec": 0.002,
+    "retries": {
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
+    },
+    "trace": [
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: APPROVED (approved=1, rejected=0)",
+      "assemble_report: done"
+    ],
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  },
+  {
+    "sample_id": "TOY-010",
+    "predictions": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-502",
+        "category": "Deserialization",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "line_start": 7,
+        "line_end": 7
+      }
+    ],
+    "raw_all": [
+      {
+        "finding_id": "SEC-001",
+        "cwe_id": "CWE-502",
+        "category": "Deserialization",
+        "severity": "HIGH",
+        "confidence": 0.85,
+        "line_start": 7,
+        "line_end": 7
+      }
+    ],
+    "elapsed_sec": 0.002,
+    "retries": {
+      "security_sentinel": 1,
+      "code_quality_auditor": 1,
+      "evaluator": 1
+    },
+    "trace": [
+      "security_sentinel: produced 1 finding(s)",
+      "code_quality_auditor: produced 0 finding(s)",
+      "evaluator: APPROVED (approved=1, rejected=0)",
+      "assemble_report: done"
+    ],
+    "tp": 1,
+    "fp": 0,
+    "fn": 0,
+    "num_pred": 1,
+    "num_gt": 1,
+    "cwe_correct": 1
+  }
+]
