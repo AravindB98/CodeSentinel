@@ -95,11 +95,24 @@ Full architecture and routing logic in [`docs/ARCHITECTURE.md`](docs/ARCHITECTUR
 
 ## Measured Results
 
-Every number below is measured by running `make benchmark` and `make benchmark-paired` in deterministic mock-LLM mode. No API key required, reproducible on any clone.
+Two evaluation modes: **mock-LLM** (deterministic, reproducible on any clone with no API key) and **real-LLM** (Anthropic Claude Sonnet, run April 20 2026, ~$2 total). Both modes are reported; they tell complementary stories.
 
-### Final Official Results
+### Real-LLM Results (April 20, 2026 — `eval/results/20260420_143220/`)
 
-**Toy suite — 10 hand-labeled samples, 8 ground-truth findings**
+**Toy suite — 10 hand-labeled samples, real Anthropic SDK**
+
+| System | TPR | FP count | FPR | CWE accuracy |
+|---|---|---|---|---|
+| Single-prompt baseline | **1.000** | 30 | 0.789 | 1.000 |
+| **Multi-agent CodeSentinel** | **1.000** | **1** | **0.111** | **1.000** |
+
+Delta: **TPR ±0.000, FPR −0.678**. Both systems catch all 8 ground-truth findings. The Evaluator Guardian eliminates **29 of 30 baseline false positives** — the architecture's value with a real LLM is primarily in FPR control, not TPR. The 1 remaining multi-agent FP is on TOY-006 (a pattern-detection ambiguity; documented). McNemar: no discordant pairs on TP detection, test not applicable.
+
+**Key insight**: With a real LLM, the single-prompt baseline detects everything *and* invents 30 false positives (3 per sample on average). The Evaluator Guardian enforces citation evidence and confidence thresholds, reducing FP output by 97%.
+
+### Mock-LLM Results (reproducible, no API key)
+
+**Toy suite — 10 hand-labeled samples**
 
 | System | TPR | FPR | CWE accuracy | McNemar p |
 |---|---|---|---|---|
@@ -108,7 +121,7 @@ Every number below is measured by running `make benchmark` and `make benchmark-p
 
 Delta: **+0.250 TPR**. Direction favors multi-agent; ten samples is too few for statistical significance on its own.
 
-**Paired suite — 20 samples (10 true-positive + 10 false-positive traps), OWASP-Benchmark-style methodology**
+**Paired suite — 20 samples (10 true-positive + 10 false-positive traps), OWASP-Benchmark-style**
 
 | System | TPR | FPR | CWE accuracy | Youden | McNemar p |
 |---|---|---|---|---|---|
@@ -117,7 +130,7 @@ Delta: **+0.250 TPR**. Direction favors multi-agent; ten samples is too few for 
 
 Delta: **+0.667 TPR, −0.389 FPR**. McNemar's exact two-sided p = 0.0312, **significant at α = 0.05**. Six discordant pairs, all favoring multi-agent.
 
-The two multi-agent false positives on the paired suite are (1) `hashlib.md5` used as a content-addressed cache key and (2) a dead-code vulnerable branch. Both are documented limitations of pattern-based detection, decomposed in §10.8 of the technical report with three concrete mitigation paths.
+The two multi-agent false positives on the paired suite are (1) `hashlib.md5` used as a content-addressed cache key and (2) a dead-code vulnerable branch. Both are decomposed in §10.8 of the technical report with three concrete mitigation paths.
 
 **35/35 unit tests pass** on a clean clone in mock mode with no external dependencies.
 

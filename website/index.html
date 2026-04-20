@@ -294,12 +294,12 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
       <div class="num">
         <div class="num-label">TRUE POSITIVE RATE</div>
         <div class="num-value hot mono">1.000</div>
-        <div class="num-foot">↑ 0.250 over baseline</div>
+        <div class="num-foot">real LLM · all GT found</div>
       </div>
       <div class="num">
-        <div class="num-label">FALSE POSITIVE RATE</div>
-        <div class="num-value mono">0.000</div>
-        <div class="num-foot">10-sample toy suite</div>
+        <div class="num-label">FP REDUCTION</div>
+        <div class="num-value hot mono">−97%</div>
+        <div class="num-foot">30 → 1 false positive</div>
       </div>
       <div class="num">
         <div class="num-label">UNIT TESTS PASSING</div>
@@ -532,7 +532,44 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
     </p>
 
     <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-ghost); letter-spacing: 0.15em; margin-bottom: 14px; text-transform: uppercase;">
-      ↳ TOY SUITE · 10 SAMPLES · HAND-LABELED
+      ↳ REAL LLM · TOY SUITE · 10 SAMPLES · ANTHROPIC CLAUDE SONNET · APR 20 2026
+    </div>
+    <div class="results">
+      <table class="results-table">
+        <thead>
+          <tr><th>System</th><th>TPR</th><th>FP count</th><th>FPR</th><th>CWE accuracy</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color: var(--ink-dim);">Single-prompt baseline</td>
+            <td class="num-cell">1.000</td>
+            <td class="num-cell" style="color: var(--red);">30</td>
+            <td class="num-cell" style="color: var(--red);">0.789</td>
+            <td class="num-cell">1.000</td>
+          </tr>
+          <tr>
+            <td style="color: var(--ink);">Multi-agent CodeSentinel</td>
+            <td class="num-cell hot">1.000</td>
+            <td class="num-cell hot">1</td>
+            <td class="num-cell hot">0.111</td>
+            <td class="num-cell">1.000</td>
+          </tr>
+          <tr style="border-top: 1px solid var(--line-hot);">
+            <td style="color: var(--ink-ghost); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;">Delta</td>
+            <td class="num-cell">±0.000</td>
+            <td class="num-cell delta">−29 FPs</td>
+            <td class="num-cell delta">−0.678</td>
+            <td class="num-cell">±0.000</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="results-note">
+        ↳ Real Anthropic SDK · Both systems detect all 8 GT findings · Evaluator Guardian eliminates <span style="color: var(--accent);">97% of baseline false positives</span> · eval/results/20260420_143220/
+      </div>
+    </div>
+
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-ghost); letter-spacing: 0.15em; margin: 40px 0 14px; text-transform: uppercase;">
+      ↳ MOCK LLM · TOY SUITE · 10 SAMPLES · HAND-LABELED · REPRODUCIBLE
     </div>
     <div class="results">
       <table class="results-table">

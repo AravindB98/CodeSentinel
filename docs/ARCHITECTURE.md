@@ -195,23 +195,34 @@ A prediction matches a ground-truth entry when:
 
 ### Reported results (measured, not projected)
 
-10-sample hand-labeled toy suite, mock LLM backend:
+#### Real-LLM results — toy suite, Anthropic Claude Sonnet (April 20, 2026)
+
+Committed to `eval/results/20260420_143220/`.
+
+| System | TPR | FP count | FPR | CWE accuracy |
+|---|---|---|---|---|
+| Single-prompt baseline | 1.000 | 30 | 0.789 | 1.000 |
+| Multi-agent CodeSentinel | 1.000 | 1 | 0.111 | 1.000 |
+
+Delta: TPR ±0.000, FPR −0.678. Both systems catch all GT findings. The Evaluator Guardian eliminates 29 of 30 baseline FPs. McNemar: no discordant pairs on TP detection, not applicable.
+
+#### Mock-LLM results — toy suite (reproducible, no API key)
 
 | System | TPR | FPR | CWE accuracy |
 |---|---|---|---|
 | Single-prompt baseline | 0.750 | 0.000 | 1.000 |
 | Multi-agent CodeSentinel | 1.000 | 0.000 | 1.000 |
 
-Delta: +0.250 TPR, +0.000 FPR. The baseline misses samples that require the specific language-pattern knowledge that RAG retrieval supplies (e.g., `yaml.load` without `SafeLoader` and `hashlib.md5` used for password hashing).
+Delta: +0.250 TPR. The baseline misses `yaml.load` without `SafeLoader` and `hashlib.md5` used for password hashing — patterns that RAG retrieval specifically surfaces.
 
-20-sample paired suite (OWASP-Benchmark-style, Python), mock LLM backend:
+#### Mock-LLM results — 20-sample paired suite (OWASP-Benchmark-style)
 
 | System | TPR | FPR | CWE accuracy |
 |---|---|---|---|
 | Single-prompt baseline | 0.333 | 0.571 | 1.000 |
 | Multi-agent CodeSentinel | 1.000 | 0.182 | 1.000 |
 
-Delta: +0.667 TPR, -0.389 FPR. McNemar's exact two-sided p = 0.0312, significant at α = 0.05. Six discordant pairs, all favoring multi-agent.
+Delta: +0.667 TPR, −0.389 FPR. McNemar's exact two-sided p = 0.0312, significant at α = 0.05. Six discordant pairs, all favoring multi-agent.
 
 ## Reinforcement Learning Enhancement Layer
 
