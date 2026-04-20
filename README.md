@@ -313,7 +313,7 @@ Each entry below points to specific code that demonstrates the component.
 | Ensure diversity and quality of generated data | **Independent verifier** in `synth/verify.py` uses regex-based detectors completely separate from the generator's templates and prompts. Samples failing verification are moved to `synthetic_rejected.json`. Current pass rate: 29/30 (96.7%). The one rejection is evidence the verifier is genuinely independent rather than a copy of the generator. |
 | Address privacy or ethical considerations | Templates explicitly avoid real credentials, real exploit payloads, and samples targeting specific production systems. Documented in §12 of the technical report. |
 
-### 4. Reinforcement Learning (beyond rubric) ⚠️
+### 4. Reinforcement Learning (beyond rubric) 
 
 | Claim | Evidence and honest scope |
 |---|---|
