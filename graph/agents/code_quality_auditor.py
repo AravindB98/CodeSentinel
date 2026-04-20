@@ -49,7 +49,31 @@ def _extract_json(text: str) -> Dict:
     last = text.rfind("}")
     if first == -1 or last == -1:
         raise ValueError(f"No JSON in auditor response: {text[:200]}")
-    return json.loads(text[first:last + 1])
+    candidate = text[first:last + 1]
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError:
+        # LLM returned malformed / truncated JSON — salvage complete finding objects
+        findings_raw: list[dict] = []
+        depth = 0
+        start = None
+        for i, ch in enumerate(candidate):
+            if ch == "{":
+                if depth == 0 and i > 0:
+                    start = i
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0 and start is not None:
+                    fragment = candidate[start:i + 1]
+                    try:
+                        obj = json.loads(fragment)
+                        if "finding_id" in obj:
+                            findings_raw.append(obj)
+                    except json.JSONDecodeError:
+                        pass
+                    start = None
+        return {"findings": findings_raw}
 
 
 def _parse_findings(raw: Dict) -> List[QualityFinding]:
@@ -87,7 +111,8 @@ def run_code_quality_auditor(state: CodeSentinelState) -> CodeSentinelState:
     user = _build_user_prompt(code, language, prior_feedback)
 
     try:
-        response = get_llm().complete(system=system, user=user, max_tokens=3000, temperature=0.0)
+        max_tok = 4096 if len(code) > 3000 else 3000
+        response = get_llm().complete(system=system, user=user, max_tokens=max_tok, temperature=0.0)
         parsed = _extract_json(response)
         findings = _parse_findings(parsed)
     except Exception as e:
