@@ -101,6 +101,27 @@ def _programmatic_check(state: CodeSentinelState) -> Optional[EvaluatorVerdict]:
     qual = state.get("quality_findings", [])
     passages = state.get("retrieved_passages", [])
     valid_cites = {(p["doc"], p["passage_id"]) for p in passages}
+    valid_docs = {p["doc"] for p in passages}
+
+    # If no findings at all, trigger a retry so the sentinel tries harder.
+    if not sec and not qual:
+        retry_count = state.get("retry_count", {}) or {}
+        if retry_count.get("security_sentinel", 0) < 2:
+            return EvaluatorVerdict(
+                overall_decision="REJECTED",
+                per_finding=[],
+                rationale=(
+                    "No security findings were produced. The code may contain vulnerabilities. "
+                    "Re-analyze it carefully and report any suspicious patterns with appropriate "
+                    "confidence. Use the best available RAG citation — do not suppress a real "
+                    "finding solely because the retrieved context is imperfect."
+                ),
+            )
+        return EvaluatorVerdict(
+            overall_decision="APPROVED",
+            per_finding=[],
+            rationale="No findings to review.",
+        )
 
     verdicts: List[FindingVerdict] = []
     any_rejected = False
@@ -116,11 +137,21 @@ def _programmatic_check(state: CodeSentinelState) -> Optional[EvaluatorVerdict]:
             reasons.append(RejectionReason.MISSING_CITATION.value)
             feedback_parts.append("rag_source.doc and passage_id are required.")
         elif cite not in valid_cites:
-            reasons.append(RejectionReason.CITATION_DOES_NOT_SUPPORT.value)
-            feedback_parts.append(
-                f"Citation {cite} is not in the retrieved context. "
-                f"Available: {sorted(valid_cites)[:5]}..."
-            )
+            if cite[0] not in valid_docs:
+                # Doc name is completely wrong — hard reject
+                reasons.append(RejectionReason.CITATION_DOES_NOT_SUPPORT.value)
+                feedback_parts.append(
+                    f"Doc '{cite[0]}' not in retrieved context. "
+                    f"Available docs: {sorted(valid_docs)}. "
+                    f"Use one of: {sorted(valid_cites)[:5]}..."
+                )
+            else:
+                # Right doc, wrong passage_id — soft feedback only (LLM can still approve)
+                available_ids = [p["passage_id"] for p in passages if p["doc"] == cite[0]]
+                feedback_parts.append(
+                    f"passage_id '{cite[1]}' not found in '{cite[0]}'. "
+                    f"Available ids for that doc: {available_ids[:5]}."
+                )
 
         fix = getattr(f, "fix", "") or ""
         if len(fix) < 20:
@@ -188,13 +219,24 @@ def run_evaluator(state: CodeSentinelState, use_llm: bool = True) -> CodeSentine
     """LangGraph node. Writes evaluator_verdict; sets evaluator_feedback if rejected."""
     prog_verdict = _programmatic_check(state)
 
-    if not use_llm or prog_verdict is None or prog_verdict.overall_decision == "REJECTED":
-        # If programmatic check already rejected, skip LLM call (cheaper).
+    has_findings = bool(
+        state.get("security_findings") or state.get("quality_findings")
+    )
+
+    # Skip LLM when there are no findings (nothing to semantically review)
+    # or when explicitly disabled.
+    if not use_llm or prog_verdict is None or not has_findings:
         verdict = prog_verdict
     else:
-        # Ask the LLM for a semantic review on top of programmatic approval.
+        # Always run LLM for non-empty findings so it can override over-strict
+        # programmatic citation checks. Pass programmatic notes as context.
         system = _load_system_prompt()
         user = _build_user_prompt(state)
+        if prog_verdict.overall_decision == "REJECTED":
+            user += (
+                "\n\nPROGRAMMATIC PRE-CHECK NOTES (advisory only — use your judgement):\n"
+                + prog_verdict.rationale
+            )
         try:
             response = get_llm().complete(system=system, user=user, max_tokens=2000, temperature=0.0)
             parsed = _extract_json(response)
@@ -211,7 +253,6 @@ def run_evaluator(state: CodeSentinelState, use_llm: bool = True) -> CodeSentine
                 ],
                 rationale=parsed.get("rationale", ""),
             )
-            # Combine: LLM can downgrade to REJECTED but not overturn a programmatic rejection
             verdict = llm_verdict
         except Exception as e:
             logger.warning("LLM evaluator failed; using programmatic verdict: %s", e)

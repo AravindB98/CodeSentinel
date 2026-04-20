@@ -237,7 +237,67 @@ def main():
             "## Delta (multi - baseline)",
             f"- TPR: {delta_tpr:+.3f}", f"- FPR: {delta_fpr:+.3f}",
             f"- CWE Accuracy: {delta_cwe:+.3f}",
+            "",
         ])
+
+        # --- McNemar's exact test (paired comparison) ---
+        # For each ground-truth finding, classify whether each system detected it.
+        # b_only: baseline caught it, multi did not (discordant favoring baseline)
+        # m_only: multi caught it, baseline did not (discordant favoring multi)
+        # Concordant cases (both caught or both missed) are ignored by McNemar.
+        b_by_id = {b["sample_id"]: b for b in baseline_per}
+        b_only = m_only = both = neither = 0
+        for m in multi_per:
+            sid = m["sample_id"]
+            b = b_by_id.get(sid, {})
+            # Per-GT comparison: sample's TP is a count of correctly-detected GT findings.
+            # For a paired test we compare per-sample detection, treating each sample as
+            # one paired observation: "did at least one system catch everything?"
+            b_caught_all = (b.get("fn", 0) == 0 and b.get("num_gt", 0) > 0)
+            m_caught_all = (m.get("fn", 0) == 0 and m.get("num_gt", 0) > 0)
+            if b_caught_all and m_caught_all:
+                both += 1
+            elif b_caught_all and not m_caught_all:
+                b_only += 1
+            elif m_caught_all and not b_caught_all:
+                m_only += 1
+            else:
+                neither += 1
+
+        # Exact binomial two-sided p-value under H0: each discordant pair is 50/50
+        n_disc = b_only + m_only
+        p_value: Optional[float] = None
+        if n_disc > 0:
+            # two-sided exact test: 2 * min(one-sided tail probabilities)
+            k = min(b_only, m_only)
+            # sum of binomial PMF from 0..k with p=0.5
+            from math import comb
+            tail = sum(comb(n_disc, i) for i in range(k + 1)) / (2 ** n_disc)
+            p_value = min(1.0, 2 * tail)
+
+        summary_lines.extend([
+            "## McNemar's Exact Test (paired per-sample)",
+            f"- Samples where only baseline detected all GT findings (b_only): {b_only}",
+            f"- Samples where only multi-agent detected all GT findings (m_only): {m_only}",
+            f"- Both systems detected all: {both}",
+            f"- Neither detected all (or no GT): {neither}",
+            f"- Discordant pairs: {n_disc}",
+        ])
+        if p_value is None:
+            summary_lines.append("- No discordant pairs: test not applicable.")
+        else:
+            summary_lines.append(f"- Two-sided exact p-value: {p_value:.4f}")
+            if p_value <= 0.05:
+                direction = "multi-agent" if m_only > b_only else "baseline"
+                summary_lines.append(f"- Result: direction favors {direction}, p <= 0.05.")
+            else:
+                summary_lines.append(
+                    f"- Result: observed direction favors "
+                    f"{'multi-agent' if m_only > b_only else 'baseline'}, "
+                    f"but with only {n_disc} discordant pair(s) the test cannot reach "
+                    "conventional significance (p>0.05). A run against a larger suite "
+                    "would be required to claim statistical superiority."
+                )
 
     summary = "\n".join(summary_lines)
     (out / "summary.md").write_text(summary, encoding="utf-8")

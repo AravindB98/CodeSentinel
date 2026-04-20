@@ -56,7 +56,16 @@ def assemble_report(state: CodeSentinelState) -> CodeSentinelState:
     sec = state.get("security_findings", []) or []
     qual = state.get("quality_findings", []) or []
     verdict = state.get("evaluator_verdict")
-    approved = set(verdict.approved_ids) if verdict else {f.finding_id for f in sec}
+    circuit_breaker_fired = any(
+        "circuit_breaker" in t for t in state.get("trace", [])
+    )
+    if circuit_breaker_fired:
+        # Max retries exhausted — pass through all findings so users see something
+        approved = {f.finding_id for f in sec}
+    elif verdict:
+        approved = set(verdict.approved_ids)
+    else:
+        approved = {f.finding_id for f in sec}
 
     lines = ["# CodeSentinel Review Report", ""]
 
@@ -133,7 +142,9 @@ def build_langgraph():
     qual_node = _with_retry_counter("code_quality_auditor", run_code_quality_auditor)
     eval_node = _with_retry_counter("evaluator", run_evaluator)
 
-    g = StateGraph(dict)
+    # Use CodeSentinelState (TypedDict) so LangGraph passes the full state snapshot
+    # to every node, not just individually-changed channels.
+    g = StateGraph(CodeSentinelState)
     g.add_node("security_sentinel", sec_node)
     g.add_node("code_quality_auditor", qual_node)
     g.add_node("evaluator", eval_node)

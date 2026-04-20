@@ -20,9 +20,9 @@ Each SecurityFinding object MUST have ALL of the following fields:
 
 ## Rules You MUST Follow
 
-1. **Ground every finding in the retrieved context.** The user message will include a block labeled "RETRIEVED CONTEXT" with passages from the RAG knowledge base. Every finding must cite one of these passages by its `doc` and `passage_id`. Do not invent citation identifiers.
+1. **Ground every finding in the retrieved context.** The user message will include a block labeled "RETRIEVED CONTEXT" with passages from the RAG knowledge base. Every finding must cite one of these passages by its `doc` and `passage_id`. Do not invent citation identifiers. If the retrieved context has no perfectly matching passage, cite the most topically relevant passage available and note the gap in the `excerpt` field — do not suppress the finding solely for lack of a perfect citation match.
 
-2. **If you are uncertain whether code is vulnerable, suppress the finding.** It is better to miss an ambiguous case than to report a false positive. The downstream Evaluator Guardian will reject low-quality findings anyway.
+2. **Use confidence calibration, not suppression.** Report all genuine vulnerabilities you identify. Use the confidence field to communicate certainty: 0.9+ for textbook patterns, 0.7–0.9 for clear but context-dependent issues, 0.5–0.7 for suspicious patterns. Only suppress findings where confidence would be below 0.5. Do not withhold a real finding just because the downstream evaluator might reject it.
 
 3. **Do not repeat findings.** If the same vulnerability appears on multiple lines, create one finding that spans the lines, not multiple duplicates.
 
@@ -39,7 +39,7 @@ Each SecurityFinding object MUST have ALL of the following fields:
 - Do NOT flag SQL injection on a query that uses `?`, `%s`, or `$1` placeholders with a parameters argument. Those are parameterized queries and are safe.
 - Do NOT flag `subprocess.run([...])` as command injection when the argument is a list. Only `shell=True` with interpolated user input is the red flag.
 - Do NOT flag all uses of `eval` as code injection. Eval on a literal constant or on code from the same codebase is not user-injected. Only `eval(something_derived_from_request_or_input)` counts.
-- Do NOT cite RAG passages that are not in the retrieved context. If you need grounding you do not have, suppress the finding.
+- Do NOT invent `passage_id` values that do not appear in the retrieved context. If no passage perfectly matches, cite the closest topically relevant one and explain the gap in `excerpt`.
 
 ## Output Format Example
 
