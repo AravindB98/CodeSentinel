@@ -164,6 +164,16 @@ with col_in:
 analyze = st.button("🔍 Analyze", type="primary", use_container_width=True)
 st.divider()
 
+
+def _safe(s: str) -> str:
+    """HTML-escape a snippet for the markdown rendering."""
+    return (
+        s.replace("&", "&amp;")
+         .replace("<", "&lt;")
+         .replace(">", "&gt;")
+    )
+
+
 # --- Analysis ---
 if analyze:
     if not code.strip():
@@ -325,12 +335,3 @@ if analyze:
             "quality_findings": [f.model_dump() for f in qual if hasattr(f, "model_dump")],
         }
         st.json(safe_state)
-
-
-def _safe(s: str) -> str:
-    """HTML-escape a snippet for the markdown rendering."""
-    return (
-        s.replace("&", "&amp;")
-         .replace("<", "&lt;")
-         .replace(">", "&gt;")
-    )
