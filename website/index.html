@@ -611,6 +611,34 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
       (pattern detection cannot reason about reachability). Both are documented limitations of pattern-based
       detection — the exact failure modes the OWASP Benchmark is designed to probe.
     </p>
+
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-ghost); letter-spacing: 0.15em; margin: 48px 0 14px; text-transform: uppercase;">
+      ↳ REAL-WORLD COMPARISON · §10.10 · SEMGREP VS CODESENTINEL · FLASK SOURCE (APR 2026)
+    </div>
+    <div class="results">
+      <table class="results-table">
+        <thead>
+          <tr><th>Tool</th><th>Findings</th><th>Time</th><th>Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color: var(--ink-dim);">Semgrep (config=auto)</td>
+            <td class="num-cell">0</td>
+            <td class="num-cell mono" style="font-size:13px">10.6s</td>
+            <td class="num-cell">$0.00</td>
+          </tr>
+          <tr>
+            <td style="color: var(--ink);">CodeSentinel (real LLM)</td>
+            <td class="num-cell">0</td>
+            <td class="num-cell mono" style="font-size:13px">441.9s</td>
+            <td class="num-cell">~$0.25</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="results-note">
+        ↳ Flask <span style="color: var(--ink);">app.py + helpers.py</span> &nbsp;·&nbsp; Overlap: 0 &nbsp;·&nbsp; Both tools correct — hardened production code has no vulnerabilities &nbsp;·&nbsp; <span style="color: var(--accent);">eval/results/semgrep_comparison/</span>
+      </div>
+    </div>
   </section>
 
   <!-- ============ STORY / §11.6 ============ -->
@@ -655,8 +683,11 @@ make test
 <span class="comment"># 4 · run the benchmark · baseline vs. multi-agent</span>
 make benchmark
 
-<span class="comment"># 5 · launch the streamlit UI</span>
+<span class="comment"># 5 · launch the streamlit UI locally</span>
 make ui
+
+<span class="comment"># or use the live cloud deployment:</span>
+<span class="comment"># https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app</span>
     </div>
   </section>
 

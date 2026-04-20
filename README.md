@@ -127,7 +127,7 @@ The two multi-agent false positives on the paired suite are (1) `hashlib.md5` us
 
 | Layer | Technology | Why |
 |---|---|---|
-| Agent orchestration | LangGraph 0.2.x | Explicit state transitions; `add_conditional_edges` maps cleanly to a bounded retry loop with visible routing logic |
+| Agent orchestration | LangGraph 1.1.x | Explicit state transitions; `add_conditional_edges` maps cleanly to a bounded retry loop with visible routing logic |
 | Reasoning LLM | Anthropic Claude Sonnet (via `anthropic` SDK) | Strong code reasoning; structured output adherence |
 | Fallback LLM mode | Custom deterministic mock | Enables offline testing, CI, and evaluation without an API key |
 | Embeddings | HuggingFace `all-MiniLM-L6-v2` (local CPU) | Small, fast, no external API dependency |
@@ -191,7 +191,8 @@ codesentinel/
 │   │   └── synthetic_rejected.json     Samples the verifier rejected
 │   └── results/
 │       ├── toy_suite_10sample/         Committed benchmark output
-│       └── paired_suite_20sample/      Committed benchmark output
+│       ├── paired_suite_20sample/      Committed benchmark output
+│       └── semgrep_comparison/         Semgrep vs CodeSentinel on Flask source (Apr 2026)
 ├── utils/
 │   └── llm_client.py                   Anthropic SDK wrapper + mock-mode fallback
 ├── tests/                              35 tests across 4 files
@@ -221,7 +222,7 @@ Total: 4,600+ lines of Python across 46 files, plus documentation. Every Python 
 ### Installation
 
 ```bash
-git clone https://github.com/aravindbalaji/codesentinel.git
+git clone https://github.com/AravindB98/CodeSentinel.git
 cd codesentinel
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -268,6 +269,8 @@ make ui
 ```
 
 Paste code, click Analyze, see findings with RAG citations.
+
+**Live cloud deployment**: [codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app](https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app) — deployed on Streamlit Community Cloud, branch `master`, entry point `app/streamlit_app.py`. ANTHROPIC_API_KEY injected via Streamlit Secrets.
 
 ### Real-world Semgrep comparison
 
@@ -368,12 +371,29 @@ CodeSentinel is designed as a portfolio piece for the 2026 software-engineering 
 The project sits at the intersection of two skill areas the 2026 job market values most: **AI/LLM engineering** and **software security**. Amazon CodeGuru, Microsoft GitHub Copilot, Google Gemini Code Assist, and Snyk are all building in this space. This project demonstrates understanding not just of how to orchestrate LLMs but how to evaluate them rigorously for a safety-critical domain.
 
 Links:
-- GitHub repository: [github.com/aravindbalaji/codesentinel](https://github.com/aravindbalaji/codesentinel) *(update with actual URL)*
-- Project showcase: `index.html` in this repo, or deploy to GitHub Pages
+- GitHub repository: [github.com/AravindB98/CodeSentinel](https://github.com/AravindB98/CodeSentinel)
+- Live interactive demo: [codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app](https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app)
+- Project showcase: `website/index.html` in this repo, or deploy to GitHub Pages
 - Technical report: [`docs/CodeSentinel_Technical_Report.pdf`](docs/CodeSentinel_Technical_Report.pdf)
 - Author portfolio: [aravindbalaji.com](https://aravindbalaji.com)
 - Author Substack (AI, quantum computing, infrastructure): [aravindbalaji1.substack.com](https://aravindbalaji1.substack.com)
 - Author LinkedIn: [linkedin.com/in/aravind-balaji-17a7b2115](https://linkedin.com/in/aravind-balaji-17a7b2115)
+
+---
+
+## Engineering Notes (Post-Submission Fixes)
+
+The following bugs were diagnosed and fixed after initial submission (April 20, 2026). All fixes are committed to `master`.
+
+| Bug | Root cause | Fix |
+|---|---|---|
+| Pipeline produced 0 security findings | `StateGraph(dict)` in LangGraph 1.1.4 — the framework auto-infers TypedDict channels, so nodes received empty state on the first call | Changed to `StateGraph(CodeSentinelState)` in `graph/build_graph.py` |
+| Security Sentinel suppressed all findings | `security.md` Rules 1+2 told the LLM to suppress findings when no perfect RAG citation existed | Relaxed both rules: cite closest topical passage, only suppress if confidence < 0.5 |
+| Evaluator approved 0 findings vacuously | `_programmatic_check` returned APPROVED when no findings present, preventing any retry | Returns REJECTED with feedback when sentinel retries < 2 |
+| Evaluator skipped LLM for non-empty findings | LLM layer short-circuited when programmatic check rejected | Always runs LLM when `has_findings=True` |
+| Circuit breaker discarded approved findings | `assemble_report` used `verdict.approved_ids` which was empty after circuit-breaker fire | Passes all findings through when circuit breaker has fired |
+| Quality Auditor crashed on large files | LLM returned truncated JSON; `rfind("}")` gave malformed middle JSON | Salvages complete finding objects by scanning for balanced braces with `finding_id` keys |
+| Streamlit Cloud install failed | `langchain-core<0.5.0` is unsatisfiable with `langgraph>=1.1.0` (which requires `>=1.3.0`) | Bumped to `langchain-core>=1.3.0,<2.0.0` in `requirements.txt` |
 
 ---
 
@@ -385,7 +405,7 @@ Every non-trivial system has limitations. These are ours, disclosed rather than 
 
 2. **RL is a demonstration, not an integrated contribution.** The UCB-1 bandit and REINFORCE policy gradient in `rl/` converge on synthetic reward surfaces but are not wired into the production agent graph. This is disclosed in four separate places (README rubric table, Abstract, §8 opening, Conclusion).
 
-3. **No real-world Semgrep comparison in this release.** The protocol is specified in §10.10 and implemented in `eval/semgrep_compare.py`, but running it honestly requires real Anthropic API calls against multi-hundred-line open-source codebases, which exceeded the API budget for this course project.
+3. **Semgrep comparison ran on Flask production source — both tools found 0 findings.** The protocol specified in §10.10 was executed against Flask's `app.py` and `helpers.py` (April 2026). Semgrep: 0 findings in 10.6s, $0.00. CodeSentinel: 0 findings in 441.9s, ~$0.25. Overlap: 0, Semgrep-only: 0, CodeSentinel-only: 0. This is the **correct** result — Flask is hardened production code with no obvious vulnerabilities. Results committed to `eval/results/semgrep_comparison/`.
 
 4. **Two characterized false positives.** On the paired suite, the multi-agent system produces one FP on MD5 used as a cache key (no contextual signal to distinguish from security use) and one FP on a dead-code vulnerable branch (no reachability analysis). Both are decomposed in §10.8 with three concrete mitigation paths.
 
@@ -473,7 +493,7 @@ If you reference CodeSentinel in academic or professional work:
                   System for Automated Code Review and Vulnerability Detection},
   year         = {2026},
   howpublished = {INFO 7375 Final Project, Northeastern University},
-  note         = {Available at https://github.com/aravindbalaji/codesentinel}
+  note         = {Available at https://github.com/AravindB98/CodeSentinel}
 }
 ```
 
