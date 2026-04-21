@@ -272,7 +272,9 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
   <a href="#components">03 / COMPONENTS</a>
   <a href="#results">04 / RESULTS</a>
   <a href="#story">05 / DISCOVERY</a>
-  <a href="#source">06 / SOURCE</a>
+  <a href="#reproduce">06 / REPRODUCE</a>
+  <a href="#demo">07 / LIVE DEMO</a>
+  <a href="#source">08 / SOURCE</a>
 </nav>
 
 <main class="shell" id="top">
@@ -681,7 +683,7 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
   </section>
 
   <!-- ============ QUICK START ============ -->
-  <section class="sec">
+  <section class="sec" id="reproduce">
     <div class="sec-num">06 / REPRODUCE</div>
     <h2 class="sec-head">Five commands. <em>No API key required.</em></h2>
     <p class="sec-intro">
@@ -707,16 +709,73 @@ make ui
     </div>
   </section>
 
+  <!-- ============ LIVE DEMO ============ -->
+  <section class="sec" id="demo">
+    <div class="sec-num">07 / LIVE DEMO</div>
+    <h2 class="sec-head">Try it. <em>Watch it run.</em></h2>
+    <p class="sec-intro">
+      The live Streamlit app runs against real Claude Sonnet. Paste any Python or JavaScript snippet
+      and watch the three agents analyze it, the Evaluator Guardian validate citations, and the retry
+      loop engage when findings get rejected. The seven-minute video walks through the full architecture
+      and the ninety-seven percent false-positive reduction, beat by beat.
+    </p>
+
+    <!-- YouTube embed — 7-minute walkthrough -->
+    <div style="margin: 56px 0 32px; max-width: 960px;">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 16px;">VIDEO · 7 MINUTES</div>
+      <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
+                  border: 1px solid var(--line); border-radius: 2px; background: var(--bg-sunk);">
+        <iframe src="https://www.youtube.com/embed/do8GvAK7tHI"
+                title="CodeSentinel — 7-minute walkthrough"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;">
+        </iframe>
+      </div>
+      <p style="margin-top: 12px; font-size: 13px; color: var(--ink-dim); font-style: italic; max-width: 960px;">
+        Seven-minute walkthrough: architecture, live demo, the 30→1 result, and the bug the system
+        caught before the author did. Same model, same prompts, different architecture.
+      </p>
+    </div>
+
+    <!-- Streamlit live embed -->
+    <div style="margin: 56px 0 32px; max-width: 960px;">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 16px;">LIVE STREAMLIT · REAL CLAUDE SONNET</div>
+      <div style="border: 1px solid var(--line-hot); border-radius: 2px; background: var(--bg-raised);
+                  padding: 20px; text-align: center;">
+        <p style="margin: 0 0 20px; color: var(--ink-dim); font-size: 14px;">
+          The live demo runs on Streamlit Community Cloud against a personal Anthropic API account.
+          Each analysis costs roughly $0.02–0.05 in credits. Mock mode is available in the repo for
+          zero-cost reproduction.
+        </p>
+        <a href="https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app"
+           target="_blank" rel="noopener"
+           class="btn primary"
+           style="font-size: 15px; padding: 16px 28px;">
+          Open the live demo <span class="arrow">↗</span>
+        </a>
+        <p style="margin: 20px 0 0; font-family: 'JetBrains Mono', monospace;
+                  font-size: 12px; color: var(--ink-ghost); word-break: break-all;">
+          codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app
+        </p>
+      </div>
+      <p style="margin-top: 12px; font-size: 13px; color: var(--ink-dim); font-style: italic; max-width: 960px;">
+        The Streamlit app exposes four tabs — Findings, Evaluator verdict, RAG citations, and Trace —
+        so every claim the system makes is inspectable end to end.
+      </p>
+    </div>
+  </section>
+
   <!-- ============ SOURCE / CTA ============ -->
   <section class="sec" id="source">
-    <div class="sec-num">07 / SOURCE & ARTIFACTS</div>
+    <div class="sec-num">08 / SOURCE & ARTIFACTS</div>
     <h2 class="sec-head">Every file. Every test. <em>Every measured number.</em></h2>
 
     <div class="cta-row" style="margin-top: 48px;">
-      <a href="https://github.com/aravindbalaji/codesentinel" class="btn primary">GitHub repository <span class="arrow">↗</span></a>
-      <a href="./docs/CodeSentinel_Technical_Report.pdf" class="btn">Technical report (PDF) <span class="arrow">↗</span></a>
-      <a href="./docs/ARCHITECTURE.md" class="btn">Architecture doc <span class="arrow">↗</span></a>
-      <a href="#" class="btn">Video walkthrough <span class="arrow">↗</span></a>
+      <a href="https://github.com/AravindB98/CodeSentinel" class="btn primary">GitHub repository <span class="arrow">↗</span></a>
+      <a href="https://github.com/AravindB98/CodeSentinel/blob/master/CodeSentinel_Technical_Report.pdf" class="btn">Technical report (45 pages) <span class="arrow">↗</span></a>
+      <a href="https://github.com/AravindB98/CodeSentinel/blob/master/docs/ARCHITECTURE.md" class="btn">Architecture doc <span class="arrow">↗</span></a>
+      <a href="https://youtu.be/do8GvAK7tHI" class="btn">Video walkthrough <span class="arrow">↗</span></a>
     </div>
   </section>
 
@@ -735,10 +794,11 @@ make ui
       <div class="footer-col">
         <h5>Artifacts</h5>
         <ul>
-          <li><a href="https://github.com/aravindbalaji/codesentinel">GitHub repo</a></li>
-          <li><a href="./docs/CodeSentinel_Technical_Report.pdf">Tech report (PDF)</a></li>
-          <li><a href="./docs/ARCHITECTURE.md">Architecture</a></li>
-          <li><a href="https://github.com/aravindbalaji/codesentinel/tree/main/app">Streamlit demo</a></li>
+          <li><a href="https://github.com/AravindB98/CodeSentinel">GitHub repo</a></li>
+          <li><a href="https://github.com/AravindB98/CodeSentinel/blob/master/CodeSentinel_Technical_Report.pdf">Tech report (PDF)</a></li>
+          <li><a href="https://github.com/AravindB98/CodeSentinel/blob/master/docs/ARCHITECTURE.md">Architecture</a></li>
+          <li><a href="https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app">Streamlit demo</a></li>
+          <li><a href="https://youtu.be/do8GvAK7tHI">Video walkthrough</a></li>
         </ul>
       </div>
       <div class="footer-col">

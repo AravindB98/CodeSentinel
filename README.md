@@ -2,14 +2,29 @@
 
 > A multi-agent, retrieval-augmented AI system for automated code review and vulnerability detection. **Same Claude Sonnet model, same prompts, different architecture: 97% reduction in hallucinated findings.**
 
-[![Live Demo](https://img.shields.io/badge/demo-streamlit-d97706?style=flat-square&logo=streamlit)](https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app)
-[![Report](https://img.shields.io/badge/report-PDF%20(45%20pages)-c2410c?style=flat-square)](./CodeSentinel_Technical_Report.pdf)
+[![Project Website](https://img.shields.io/badge/website-github%20pages-d97706?style=flat-square&logo=github)](https://aravindb98.github.io/CodeSentinel/#source)
+[![Live Demo](https://img.shields.io/badge/demo-streamlit-c2410c?style=flat-square&logo=streamlit)](https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app)
+[![Video Walkthrough](https://img.shields.io/badge/video-youtube%20(7%20min)-c2410c?style=flat-square&logo=youtube)](https://youtu.be/do8GvAK7tHI)
+[![Technical Report](https://img.shields.io/badge/report-PDF%20(45%20pages)-d97706?style=flat-square)](./CodeSentinel_Technical_Report.pdf)
 [![Tests](https://img.shields.io/badge/tests-35%2F35%20passing-5a7a1a?style=flat-square)](./tests/)
 [![License](https://img.shields.io/badge/license-MIT-grey?style=flat-square)](./LICENSE)
 
 **Author:** Aravind Balaji · M.S. Information Systems · Northeastern University
 **Course:** INFO 7375 (Prompt Engineering and Generative AI) · Spring 2026 · Prof. Nik Bear Brown
 **Contact:** balaji.ara@northeastern.edu · NUID: 001564773
+
+---
+
+## Links
+
+| Artifact | URL |
+|---|---|
+| 🌐 **Project website** | https://aravindb98.github.io/CodeSentinel/#source |
+| 🧪 **Live Streamlit demo** | https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app |
+| 🎬 **Video walkthrough (7 min)** | https://youtu.be/do8GvAK7tHI |
+| 📦 **GitHub repository** | https://github.com/AravindB98/CodeSentinel |
+| 📄 **Technical report** (45 pages) | [`CodeSentinel_Technical_Report.pdf`](./CodeSentinel_Technical_Report.pdf) |
+| 🏛 **Architecture docs** | [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) |
 
 ---
 
@@ -29,7 +44,7 @@ Paired-suite (20 samples, OWASP-Benchmark-style): **McNemar's exact p = 0.0312**
 
 ## How to run it
 
-### Quick start (no API key needed — mock mode)
+### Quick start (no API key — mock mode)
 
 ```bash
 git clone https://github.com/AravindB98/CodeSentinel.git
@@ -48,7 +63,7 @@ unset CODESENTINEL_MOCK_LLM
 make benchmark        # runs against Claude Sonnet, ~$2 for full toy suite
 ```
 
-### Streamlit UI
+### Streamlit UI (local)
 
 ```bash
 streamlit run app/streamlit_app.py
@@ -62,19 +77,21 @@ streamlit run app/streamlit_app.py
 
 Three specialized agents orchestrated via LangGraph with a bounded retry loop and a hard circuit breaker.
 
-```
-                        ┌──── RAG index (56 passages) ────┐
-                        │     OWASP + CWE + patterns       │
-                        └──────────────┬──────────────────┘
-                                       │
-                                       ▼
-Source code ─► Security Sentinel ─┐
-               (RAG-grounded)     │
-               ─► Quality Auditor ─┤─► Evaluator Guardian ─APPROVED─► Final Report
-                  (style/maint.)   │   (programmatic + LLM)
-                                   │           │
-                                   │    REJECTED · retry (max 3)
-                                   └◄──────────┘
+```mermaid
+flowchart LR
+    IN([Source code]) --> SS[Security Sentinel<br/>RAG-grounded]
+    IN --> QA[Quality Auditor<br/>style · maintainability]
+    RAG[(RAG index<br/>56 passages:<br/>OWASP + CWE + patterns)] <--> SS
+    SS --> EG{Evaluator Guardian<br/>programmatic + LLM}
+    QA --> EG
+    EG -- APPROVED --> OUT([Final Report])
+    EG -. REJECTED · retry max 3 .-> SS
+
+    style SS fill:#fff4e3,stroke:#d97706,stroke-width:2px,color:#1a1c17
+    style QA fill:#fff4e3,stroke:#d97706,stroke-width:2px,color:#1a1c17
+    style EG fill:#feeadc,stroke:#c2410c,stroke-width:2px,color:#1a1c17
+    style RAG fill:#f0efe8,stroke:#9a9687,color:#5a584d
+    style OUT fill:#f0f4e6,stroke:#5a7a1a,stroke-width:2px,color:#1a1c17
 ```
 
 - **Security Sentinel** — RAG-grounded vulnerability detection. Every finding must cite a retrieved passage.
@@ -87,34 +104,70 @@ Every structural property — citation enforcement, retry bounds, circuit breake
 
 ---
 
-## What's in this repository
+## Repository structure
 
 ```
-codesentinel/
-├── app/streamlit_app.py              # Live demo UI
-├── graph/                            # LangGraph orchestration
-│   ├── state.py, schemas.py, build_graph.py
-│   ├── agents/ (sentinel, auditor, evaluator)
-│   └── prompts/ (system prompts, versioned)
-├── rag/                              # Retrieval pipeline
-│   ├── ingest.py, retriever.py
-│   └── data/ (owasp.md, cwe_subset.csv, patterns.md)
-├── synth/                            # Synthetic data (15 CWE templates)
-│   ├── generate.py, verify.py (independent regex verifier)
+CodeSentinel/
+├── .github/workflows/
+│   └── deploy.yml                        # GitHub Pages deployment workflow
+├── app/
+│   └── streamlit_app.py                  # Live demo UI (also deployed on Streamlit Cloud)
+├── graph/                                # LangGraph orchestration
+│   ├── state.py                          #   shared TypedDict state
+│   ├── schemas.py                        #   Pydantic + dataclass fallback
+│   ├── build_graph.py                    #   LangGraph wiring + fallback runner
+│   ├── agents/
+│   │   ├── security_sentinel.py
+│   │   ├── code_quality_auditor.py
+│   │   └── evaluator_guardian.py
+│   └── prompts/
+│       ├── security.md                   #   versioned system prompts
+│       ├── quality.md
+│       └── evaluator.md
+├── rag/                                  # Retrieval pipeline
+│   ├── ingest.py                         #   triple-backend ingest (ChromaDB → TF-IDF → pure Python)
+│   ├── retriever.py                      #   two-pass retrieval with lexical rerank
+│   └── data/
+│       ├── owasp_top10_2025.txt          #   10 OWASP Top 10 2025 entries
+│       ├── cwe_subset.csv                #   29 CWE taxonomy entries
+│       └── patterns.md                   #   17 language-specific patterns
+├── synth/                                # Synthetic data generation (15 CWE templates)
+│   ├── generate.py
+│   ├── verify.py                         #   independent regex-based verifier
 │   └── templates/
-├── rl/                               # RL modules (not wired into graph)
-│   ├── bandit.py (UCB-1)
-│   └── policy.py (REINFORCE)
-├── eval/                             # Benchmark harness
-│   ├── baseline.py, run_benchmark.py
-│   ├── semgrep_compare.py            # Semgrep comparison harness
-│   ├── datasets/ (toy + paired + synth)
-│   └── results/20260420_143220/      # Real Claude Sonnet run, April 20
-├── tests/                            # 35 unit tests, pytest-optional
-├── docs/ARCHITECTURE.md
-├── CodeSentinel_Technical_Report.pdf # 45-page technical report
-├── requirements.txt, Makefile, .env.example
-└── README.md
+├── rl/                                   # RL modules (NOT wired into graph)
+│   ├── bandit.py                         #   UCB-1 contextual bandit
+│   └── policy.py                         #   REINFORCE policy gradient
+├── eval/                                 # Benchmark harness
+│   ├── baseline_single_prompt.py
+│   ├── run_benchmark.py
+│   ├── semgrep_compare.py
+│   ├── datasets/
+│   │   ├── toy_suite.json                #   10 hand-labeled samples
+│   │   ├── paired_suite.json             #   20 OWASP-Benchmark-style
+│   │   └── synthetic_suite.json          #   29 verified synthetic
+│   └── results/
+│       ├── 20260420_143220/              #   Real Claude Sonnet run · April 20, 2026
+│       ├── toy_suite_10sample/           #   Mock-mode benchmark output
+│       ├── paired_suite_20sample/        #   Mock-mode paired output
+│       └── semgrep_comparison/           #   Semgrep vs CodeSentinel (Flask source)
+├── utils/
+│   └── llm_client.py                     # Anthropic SDK + deterministic mock
+├── tests/                                # 35 unit tests (pytest-optional)
+│   ├── test_rag.py
+│   ├── test_agents.py
+│   └── test_pipeline.py
+├── website/
+│   └── index.html                        # Project showcase page (deployed via Pages)
+├── docs/
+│   └── ARCHITECTURE.md                   # Engineering architecture doc
+├── CodeSentinel_Technical_Report.pdf     # 45-page technical report
+├── requirements.txt
+├── Makefile
+├── .env.example
+├── .gitignore
+├── LICENSE
+└── README.md                             # (this file)
 ```
 
 ---
@@ -127,26 +180,11 @@ codesentinel/
 | Reasoning LLM          | Anthropic Claude Sonnet via official SDK + deterministic mock |
 | Embeddings             | HuggingFace all-MiniLM-L6-v2 · local CPU · 384-dim          |
 | Vector store           | ChromaDB persistent with TF-IDF fallback (triple-tier)      |
-| User interface         | Streamlit (paste / upload input, tabs for findings / evaluator / RAG / trace) |
+| User interface         | Streamlit (paste / upload, tabs for findings / evaluator / RAG / trace) |
 | Schemas                | Pydantic 2 with dataclass-based fallback                    |
 | RL                     | NumPy-only (torch optional but unused)                      |
 | Testing                | 35 unit tests · unittest-compatible · pytest-optional       |
-
----
-
-## What changed in v2 (April 21, 2026)
-
-Compared to the initial submission, the current release and accompanying **45-page technical report** add:
-
-- **Real Claude Sonnet benchmark results** (April 20, 2026) — the 30→1 false-positive result, integrated into §10.4.1 of the report with raw data committed under `eval/results/20260420_143220/`.
-- **Semgrep comparison executed** (April 20, 2026) — `eval/semgrep_compare.py` run against Flask production source; both tools returned 0 findings on clean code, establishing no-over-trigger. Documented in §10.10.
-- **Paired-suite evaluation** (20 samples, OWASP-Benchmark-style) with McNemar's exact test, Wilson intervals, Youden index, and explicit power analysis in §10.7–§10.9.
-- **Live Streamlit deployment** on Streamlit Community Cloud against real Claude Sonnet (link above).
-- **5 embedded diagrams** in the technical report — three-agent architecture, LangGraph state machine, RAG pipeline, dual-panel results chart, Evaluator two-layer flow. All in a warm-orange + sindoor palette consistent with the project website.
-- **Expanded concept explanations** throughout the report — 16 callout boxes defining OWASP Top 10, CWE taxonomy, LangGraph vs CrewAI vs AutoGen, RAG, SAST, system prompts, embeddings, two-pass retrieval, McNemar's test, Youden index, UCB-1, REINFORCE, and the three-agent design rationale.
-- **§11.7 — Personal API Funding and Real-Time Cost Exposure.** Honest disclosure that the live demo runs against a personal credit card attached to an Anthropic Console account, and the meter continues to run for every visitor. Mock mode is the reproducibility path for anyone without credits.
-- **Greatly expanded §13 Future Work** — six subsections covering near-term RL integration, a five-plus-agent production architecture, positioning as a Claude Mythos / Project Glasswing alternative at open-tool scale, a 12-to-18-month research program, and a concrete startup commercialization path with unit-economics math.
-- **Numbered references** `[1]` through `[26]` and a dedicated title page with NUID, repository link, and live-demo URL.
+| Deployment             | Streamlit Community Cloud · GitHub Pages (for `website/`)   |
 
 ---
 
@@ -162,6 +200,8 @@ Three things this project is **not**:
 
 The 97%-false-positive-reduction claim is bounded by what was actually measured: a 10-sample hand-labeled toy suite of Python and JavaScript code, evaluated on a single day against one specific LLM backend. See §10.5, §10.9, and §12.4 of the report for confidence intervals and scope boundaries.
 
+**Cost disclosure (§11.7).** The live Streamlit demo runs against a personal Anthropic Console account funded by a personal credit card. The per-call meter continues to run for every visitor. Each demo invocation costs roughly $0.02–0.05. Mock mode is the zero-cost reproducibility path.
+
 ---
 
 ## Reproducing the results
@@ -174,7 +214,7 @@ python -m eval.run_benchmark
 # outputs: eval/results/<timestamp>/summary.md
 ```
 
-### Real Claude Sonnet mode (requires API key, ~$2 for toy suite)
+### Real Claude Sonnet mode (~$2 for toy suite)
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
@@ -191,12 +231,22 @@ python -m eval.semgrep_compare --target path/to/repo
 
 ---
 
-## Links
+## What changed in v2 (April 21, 2026)
 
-- **Live demo:** https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app
-- **Technical report:** [CodeSentinel_Technical_Report.pdf](./CodeSentinel_Technical_Report.pdf) (45 pages)
-- **Architecture docs:** [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
-- **Repository:** https://github.com/AravindB98/CodeSentinel
+<details>
+<summary>Click to expand v2 changelog</summary>
+
+- **Real Claude Sonnet benchmark results** (April 20, 2026) — the 30→1 false-positive result, integrated into §10.4.1 of the report with raw data committed under `eval/results/20260420_143220/`.
+- **Semgrep comparison executed** (April 20, 2026) — `eval/semgrep_compare.py` run against Flask production source; both tools returned 0 findings on clean code, establishing no-over-trigger. Documented in §10.10.
+- **Paired-suite evaluation** (20 samples, OWASP-Benchmark-style) with McNemar's exact test, Wilson intervals, Youden index, and explicit power analysis in §10.7–§10.9.
+- **Live Streamlit deployment** on Streamlit Community Cloud against real Claude Sonnet.
+- **7-minute video walkthrough** published on YouTube.
+- **GitHub Pages site** deployed via `.github/workflows/deploy.yml`.
+- **45-page technical report** with 5 embedded diagrams, numbered references, warm-orange + sindoor palette.
+- **16 callout boxes** explaining OWASP Top 10, CWE, LangGraph vs CrewAI vs AutoGen, RAG, SAST, system prompts, embeddings, two-pass retrieval, McNemar's test, Youden index, UCB-1, REINFORCE.
+- **§11.7 cost disclosure** and **greatly expanded §13 Future Work** covering a five-plus-agent production architecture, Claude Mythos / Project Glasswing positioning, a 12-to-18-month research program, and a concrete startup commercialization path.
+
+</details>
 
 ---
 
