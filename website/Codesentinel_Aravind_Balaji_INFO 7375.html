@@ -12,18 +12,18 @@
 
 <style>
 :root {
-  --bg:        #0b0d0a;
-  --bg-raised: #12150f;
-  --bg-sunk:   #080a07;
-  --ink:       #e8e6de;
-  --ink-dim:   #9a9687;
-  --ink-ghost: #575449;
-  --line:      #1e221a;
-  --line-hot:  #2a2f21;
-  --accent:    #c7f270;   /* acid lime */
-  --accent-dim:#6d8041;
-  --red:       #ff6a4d;
-  --amber:     #ffb547;
+  --bg:        #fafaf7;
+  --bg-raised: #ffffff;
+  --bg-sunk:   #f0efe8;
+  --ink:       #1a1c17;
+  --ink-dim:   #5a584d;
+  --ink-ghost: #9a9687;
+  --line:      #e3e1d6;
+  --line-hot:  #c9c6b8;
+  --accent:    #d97706;   /* warm orange */
+  --accent-dim:#b45309;
+  --red:       #9f1239;   /* deep crimson for adversarial/warning signals */
+  --amber:     #c98000;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,12 +33,12 @@ body { line-height: 1.55; font-size: 17px; }
 /* --- Grain & vignette background --- */
 body::before {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background-image: radial-gradient(circle at 20% 10%, rgba(199,242,112,.05), transparent 45%),
-                    radial-gradient(circle at 85% 85%, rgba(255,106,77,.04), transparent 50%);
+  background-image: radial-gradient(circle at 20% 10%, rgba(217,119,6,.05), transparent 45%),
+                    radial-gradient(circle at 85% 85%, rgba(159,18,57,.04), transparent 50%);
 }
 body::after {
-  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: .4;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: .25;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.03 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
 .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: 'zero','ss01'; }
@@ -49,7 +49,7 @@ body::after {
 /* --- Top status bar --- */
 .statusbar {
   border-bottom: 1px solid var(--line);
-  background: rgba(8,10,7,.6);
+  background: rgba(255,255,255,.75);
   backdrop-filter: blur(8px);
   position: sticky; top: 0; z-index: 50;
 }
@@ -73,6 +73,15 @@ body::after {
   margin-bottom: 32px; display: flex; gap: 24px; align-items: center;
 }
 .hero-meta span:not(:last-child)::after { content: "/"; margin-left: 24px; color: var(--line-hot); }
+.hero-wordmark {
+  font-family: 'Fraunces', serif; font-weight: 600;
+  font-size: clamp(64px, 11vw, 148px);
+  line-height: 0.88; letter-spacing: -0.04em;
+  color: var(--ink);
+  margin-bottom: 36px;
+  display: block;
+}
+.hero-wordmark .w-accent { color: var(--accent); font-weight: 600; }
 .hero-title {
   font-family: 'Fraunces', serif; font-weight: 500;
   font-size: clamp(48px, 8.5vw, 110px);
@@ -111,6 +120,7 @@ body::after {
 .num-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-ghost); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 12px; }
 .num-value { font-family: 'Fraunces', serif; font-size: clamp(32px, 4vw, 48px); line-height: 1; letter-spacing: -0.02em; font-weight: 500; }
 .num-value.hot { color: var(--accent); }
+.num-value.sindoor { color: #e84c1f; }
 .num-foot { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-dim); margin-top: 10px; }
 @media (max-width: 780px) { .numbers { grid-template-columns: repeat(2, 1fr); } .num:nth-child(2) { border-right: 0; } .num:nth-child(1),.num:nth-child(2) { border-bottom: 1px solid var(--line); } }
 
@@ -170,7 +180,7 @@ body::after {
 .comp-name span { display: block; font-size: 14px; color: var(--ink-dim); font-weight: 400; margin-top: 4px; font-family: 'Fraunces', serif; }
 .comp-tag {
   font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
-  padding: 6px 12px; border: 1px solid var(--accent); color: var(--accent); background: rgba(199,242,112,.06);
+  padding: 6px 12px; border: 1px solid var(--accent); color: var(--accent); background: rgba(217,119,6,.08);
 }
 @media (max-width: 780px) { .comp-row { grid-template-columns: 60px 1fr; } .comp-tag { grid-column: 2; justify-self: start; margin-top: 8px; } }
 
@@ -270,16 +280,17 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
   <!-- ============ HERO ============ -->
   <section class="hero">
     <div class="hero-meta rise">
-      <span>CODESENTINEL</span>
+      <span>INFO 7375</span>
       <span>v1.0</span>
       <span>ARAVIND BALAJI · NORTHEASTERN</span>
     </div>
-    <h1 class="hero-title rise">
+    <h1 class="hero-wordmark rise">Code<span class="w-accent">Sentinel</span></h1>
+    <h2 class="hero-title rise">
       Multi-agent<br>
       code review<br>
       <em>that refuses</em><br>
       to hallucinate.
-    </h1>
+    </h2>
     <p class="hero-sub rise">
       Three specialized LLM agents orchestrated through a LangGraph directed graph,
       grounded in OWASP&nbsp;Top&nbsp;10 and CWE&nbsp;taxonomy, and gated by an
@@ -292,14 +303,14 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
 
     <div class="numbers">
       <div class="num">
-        <div class="num-label">TRUE POSITIVE RATE</div>
-        <div class="num-value hot mono">1.000</div>
-        <div class="num-foot">real LLM · all GT found</div>
+        <div class="num-label">FP REDUCTION (REAL CLAUDE)</div>
+        <div class="num-value sindoor mono">97<span style="color: var(--ink-ghost); font-size: 0.55em;">%</span></div>
+        <div class="num-foot">baseline 30 → multi-agent 1</div>
       </div>
       <div class="num">
-        <div class="num-label">FP REDUCTION</div>
-        <div class="num-value hot mono">−97%</div>
-        <div class="num-foot">30 → 1 false positive</div>
+        <div class="num-label">TRUE POSITIVE RATE</div>
+        <div class="num-value hot mono">1.000</div>
+        <div class="num-foot">both systems, real Claude Sonnet</div>
       </div>
       <div class="num">
         <div class="num-label">UNIT TESTS PASSING</div>
@@ -368,89 +379,89 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
       <svg class="diagram" viewBox="0 0 960 440" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#c7f270"/>
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#d97706"/>
           </marker>
           <marker id="arr-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#575449"/>
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#9a9687"/>
           </marker>
         </defs>
 
         <!-- Input -->
         <g>
-          <rect x="30" y="180" width="120" height="60" fill="#12150f" stroke="#2a2f21" stroke-width="1"/>
-          <text x="90" y="205" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#e8e6de">Source code</text>
-          <text x="90" y="222" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9a9687">input_code</text>
+          <rect x="30" y="180" width="120" height="60" fill="#ffffff" stroke="#c9c6b8" stroke-width="1"/>
+          <text x="90" y="205" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#1a1c17">Source code</text>
+          <text x="90" y="222" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#5a584d">input_code</text>
         </g>
 
         <!-- Security Sentinel -->
         <g>
-          <rect x="210" y="100" width="190" height="90" fill="#12150f" stroke="#c7f270" stroke-width="1.2"/>
-          <text x="305" y="128" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#c7f270" letter-spacing="1.5">AGENT 01</text>
-          <text x="305" y="152" text-anchor="middle" font-family="Fraunces, serif" font-size="17" fill="#e8e6de" font-weight="500">Security Sentinel</text>
-          <text x="305" y="172" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9a9687">RAG-grounded · k=6</text>
+          <rect x="210" y="100" width="190" height="90" fill="#ffffff" stroke="#d97706" stroke-width="1.2"/>
+          <text x="305" y="128" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#d97706" letter-spacing="1.5">AGENT 01</text>
+          <text x="305" y="152" text-anchor="middle" font-family="Fraunces, serif" font-size="17" fill="#1a1c17" font-weight="500">Security Sentinel</text>
+          <text x="305" y="172" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#5a584d">RAG-grounded · k=6</text>
         </g>
 
         <!-- RAG store -->
         <g>
-          <rect x="460" y="30" width="160" height="70" fill="#080a07" stroke="#2a2f21" stroke-width="1"/>
-          <text x="540" y="56" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#e8e6de">RAG index</text>
-          <text x="540" y="75" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9a9687">OWASP + CWE + PAT</text>
-          <text x="540" y="90" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#c7f270">56 passages</text>
+          <rect x="460" y="30" width="160" height="70" fill="#f0efe8" stroke="#c9c6b8" stroke-width="1"/>
+          <text x="540" y="56" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#1a1c17">RAG index</text>
+          <text x="540" y="75" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#5a584d">OWASP + CWE + PAT</text>
+          <text x="540" y="90" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#d97706">56 passages</text>
         </g>
 
         <!-- Code Quality Auditor -->
         <g>
-          <rect x="210" y="245" width="190" height="90" fill="#12150f" stroke="#c7f270" stroke-width="1.2"/>
-          <text x="305" y="273" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#c7f270" letter-spacing="1.5">AGENT 02</text>
-          <text x="305" y="297" text-anchor="middle" font-family="Fraunces, serif" font-size="17" fill="#e8e6de" font-weight="500">Quality Auditor</text>
-          <text x="305" y="317" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9a9687">style · maintainability</text>
+          <rect x="210" y="245" width="190" height="90" fill="#ffffff" stroke="#d97706" stroke-width="1.2"/>
+          <text x="305" y="273" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#d97706" letter-spacing="1.5">AGENT 02</text>
+          <text x="305" y="297" text-anchor="middle" font-family="Fraunces, serif" font-size="17" fill="#1a1c17" font-weight="500">Quality Auditor</text>
+          <text x="305" y="317" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#5a584d">style · maintainability</text>
         </g>
 
         <!-- Evaluator -->
         <g>
-          <rect x="480" y="172" width="200" height="96" fill="#12150f" stroke="#ff6a4d" stroke-width="1.2"/>
-          <text x="580" y="200" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#ff6a4d" letter-spacing="1.5">AGENT 03 · ADVERSARIAL</text>
-          <text x="580" y="224" text-anchor="middle" font-family="Fraunces, serif" font-size="17" fill="#e8e6de" font-weight="500">Evaluator Guardian</text>
-          <text x="580" y="244" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9a9687">programmatic + LLM</text>
-          <text x="580" y="260" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9a9687">schema · citation · confidence</text>
+          <rect x="480" y="172" width="200" height="96" fill="#ffffff" stroke="#9f1239" stroke-width="1.2"/>
+          <text x="580" y="200" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9f1239" letter-spacing="1.5">AGENT 03 · ADVERSARIAL</text>
+          <text x="580" y="224" text-anchor="middle" font-family="Fraunces, serif" font-size="17" fill="#1a1c17" font-weight="500">Evaluator Guardian</text>
+          <text x="580" y="244" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#5a584d">programmatic + LLM</text>
+          <text x="580" y="260" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#5a584d">schema · citation · confidence</text>
         </g>
 
         <!-- Report -->
         <g>
-          <rect x="760" y="180" width="170" height="60" fill="#12150f" stroke="#c7f270" stroke-width="1.2"/>
-          <text x="845" y="205" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#c7f270">Final Report</text>
-          <text x="845" y="222" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9a9687">approved findings</text>
+          <rect x="760" y="180" width="170" height="60" fill="#ffffff" stroke="#d97706" stroke-width="1.2"/>
+          <text x="845" y="205" text-anchor="middle" font-family="Fraunces, serif" font-size="14" fill="#d97706">Final Report</text>
+          <text x="845" y="222" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#5a584d">approved findings</text>
         </g>
 
         <!-- Retry / circuit breaker -->
         <g>
-          <rect x="60" y="360" width="300" height="50" fill="#080a07" stroke="#2a2f21" stroke-dasharray="4 4"/>
-          <text x="210" y="385" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#ffb547" letter-spacing="1.5">CIRCUIT BREAKER</text>
-          <text x="210" y="402" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#9a9687">retry ≤ 3, else terminate</text>
+          <rect x="60" y="360" width="300" height="50" fill="#f0efe8" stroke="#c9c6b8" stroke-dasharray="4 4"/>
+          <text x="210" y="385" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#c98000" letter-spacing="1.5">CIRCUIT BREAKER</text>
+          <text x="210" y="402" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#5a584d">retry ≤ 3, else terminate</text>
         </g>
 
         <!-- Arrows -->
         <!-- source -> sentinel -->
-        <path d="M 150 205 L 175 205 L 175 145 L 205 145" fill="none" stroke="#c7f270" stroke-width="1.2" marker-end="url(#arr)"/>
+        <path d="M 150 205 L 175 205 L 175 145 L 205 145" fill="none" stroke="#d97706" stroke-width="1.2" marker-end="url(#arr)"/>
         <!-- source -> auditor -->
-        <path d="M 150 225 L 175 225 L 175 290 L 205 290" fill="none" stroke="#c7f270" stroke-width="1.2" marker-end="url(#arr)"/>
+        <path d="M 150 225 L 175 225 L 175 290 L 205 290" fill="none" stroke="#d97706" stroke-width="1.2" marker-end="url(#arr)"/>
 
         <!-- sentinel <-> RAG -->
-        <path d="M 400 115 L 460 65" fill="none" stroke="#575449" stroke-width="1" marker-end="url(#arr-dim)"/>
-        <path d="M 460 85 L 400 135" fill="none" stroke="#575449" stroke-width="1" marker-end="url(#arr-dim)"/>
+        <path d="M 400 115 L 460 65" fill="none" stroke="#9a9687" stroke-width="1" marker-end="url(#arr-dim)"/>
+        <path d="M 460 85 L 400 135" fill="none" stroke="#9a9687" stroke-width="1" marker-end="url(#arr-dim)"/>
 
         <!-- sentinel -> evaluator -->
-        <path d="M 400 165 L 480 200" fill="none" stroke="#c7f270" stroke-width="1.2" marker-end="url(#arr)"/>
+        <path d="M 400 165 L 480 200" fill="none" stroke="#d97706" stroke-width="1.2" marker-end="url(#arr)"/>
         <!-- auditor -> evaluator -->
-        <path d="M 400 275 L 480 250" fill="none" stroke="#c7f270" stroke-width="1.2" marker-end="url(#arr)"/>
+        <path d="M 400 275 L 480 250" fill="none" stroke="#d97706" stroke-width="1.2" marker-end="url(#arr)"/>
 
         <!-- evaluator -> report -->
-        <path d="M 680 215 L 760 210" fill="none" stroke="#c7f270" stroke-width="1.4" marker-end="url(#arr)"/>
-        <text x="720" y="203" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#c7f270">APPROVED</text>
+        <path d="M 680 215 L 760 210" fill="none" stroke="#d97706" stroke-width="1.4" marker-end="url(#arr)"/>
+        <text x="720" y="203" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#d97706">APPROVED</text>
 
         <!-- rejection loop -->
-        <path d="M 580 268 C 580 340, 370 370, 210 360" fill="none" stroke="#ff6a4d" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arr)"/>
-        <text x="395" y="330" font-family="JetBrains Mono, monospace" font-size="10" fill="#ff6a4d">REJECTED · ROUTE BACK WITH FEEDBACK</text>
+        <path d="M 580 268 C 580 340, 370 370, 210 360" fill="none" stroke="#9f1239" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+        <text x="395" y="330" font-family="JetBrains Mono, monospace" font-size="10" fill="#9f1239">REJECTED · ROUTE BACK WITH FEEDBACK</text>
 
       </svg>
     </div>
@@ -524,52 +535,51 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
   <!-- ============ RESULTS ============ -->
   <section class="sec" id="results">
     <div class="sec-num">04 / MEASURED RESULTS</div>
-    <h2 class="sec-head">Same model. Same prompt budget. <em>Better numbers across two suites.</em></h2>
+    <h2 class="sec-head">Same model. Same prompts. <em>The architecture does the work.</em></h2>
     <p class="sec-intro">
-      The single-prompt baseline uses the identical underlying LLM as CodeSentinel — this isolates the gain from
-      the <em>architecture</em>, not from the model. Two evaluation suites: a hand-labeled toy suite, and a paired suite built
-      in the spirit of the OWASP Benchmark methodology with deliberate false-positive traps.
+      The headline result is from the April 20, 2026 real-LLM run against Claude Sonnet. Both systems achieve perfect recall —
+      the decisive difference is precision. The mock-mode suites below corroborate the direction and supply statistical significance.
     </p>
 
     <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-ghost); letter-spacing: 0.15em; margin-bottom: 14px; text-transform: uppercase;">
-      ↳ REAL LLM · TOY SUITE · 10 SAMPLES · ANTHROPIC CLAUDE SONNET · APR 20 2026
+      ↳ REAL CLAUDE SONNET · TOY SUITE · 10 SAMPLES · APRIL 20 2026
     </div>
     <div class="results">
       <table class="results-table">
         <thead>
-          <tr><th>System</th><th>TPR</th><th>FP count</th><th>FPR</th><th>CWE accuracy</th></tr>
+          <tr><th>System</th><th>TPR</th><th>FPR</th><th>False positives</th><th>CWE accuracy</th></tr>
         </thead>
         <tbody>
           <tr>
             <td style="color: var(--ink-dim);">Single-prompt baseline</td>
             <td class="num-cell">1.000</td>
-            <td class="num-cell" style="color: var(--red);">30</td>
             <td class="num-cell" style="color: var(--red);">0.789</td>
+            <td class="num-cell" style="color: var(--red);">30</td>
             <td class="num-cell">1.000</td>
           </tr>
           <tr>
             <td style="color: var(--ink);">Multi-agent CodeSentinel</td>
             <td class="num-cell hot">1.000</td>
-            <td class="num-cell hot">1</td>
             <td class="num-cell hot">0.111</td>
+            <td class="num-cell hot">1</td>
             <td class="num-cell">1.000</td>
           </tr>
           <tr style="border-top: 1px solid var(--line-hot);">
-            <td style="color: var(--ink-ghost); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;">Delta</td>
+            <td style="color: var(--ink-ghost); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;">Reduction</td>
             <td class="num-cell">±0.000</td>
-            <td class="num-cell delta">−29 FPs</td>
-            <td class="num-cell delta">−0.678</td>
+            <td class="num-cell delta" style="color: #e84c1f;">−0.678</td>
+            <td class="num-cell delta" style="color: #e84c1f; font-size: 22px;">−97%</td>
             <td class="num-cell">±0.000</td>
           </tr>
         </tbody>
       </table>
       <div class="results-note">
-        ↳ Real Anthropic SDK · Both systems detect all 8 GT findings · Evaluator Guardian eliminates <span style="color: var(--accent);">97% of baseline false positives</span> · eval/results/20260420_143220/
+        ↳ <span style="color: var(--ink);">eval/results/20260420_143220/</span> &nbsp;·&nbsp; <span style="color: #e84c1f;">Evaluator Guardian rejected 29 of 30 baseline hallucinations</span> &nbsp;·&nbsp; cost ~$2 total
       </div>
     </div>
 
-    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-ghost); letter-spacing: 0.15em; margin: 40px 0 14px; text-transform: uppercase;">
-      ↳ MOCK LLM · TOY SUITE · 10 SAMPLES · HAND-LABELED · REPRODUCIBLE
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-ghost); letter-spacing: 0.15em; margin: 48px 0 14px; text-transform: uppercase;">
+      ↳ MOCK-LLM · TOY SUITE · 10 SAMPLES · REPRODUCIBILITY ANCHOR
     </div>
     <div class="results">
       <table class="results-table">
@@ -648,34 +658,6 @@ footer { border-top: 1px solid var(--line); padding: 60px 0 80px; margin-top: 80
       (pattern detection cannot reason about reachability). Both are documented limitations of pattern-based
       detection — the exact failure modes the OWASP Benchmark is designed to probe.
     </p>
-
-    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-ghost); letter-spacing: 0.15em; margin: 48px 0 14px; text-transform: uppercase;">
-      ↳ REAL-WORLD COMPARISON · §10.10 · SEMGREP VS CODESENTINEL · FLASK SOURCE (APR 2026)
-    </div>
-    <div class="results">
-      <table class="results-table">
-        <thead>
-          <tr><th>Tool</th><th>Findings</th><th>Time</th><th>Cost</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="color: var(--ink-dim);">Semgrep (config=auto)</td>
-            <td class="num-cell">0</td>
-            <td class="num-cell mono" style="font-size:13px">10.6s</td>
-            <td class="num-cell">$0.00</td>
-          </tr>
-          <tr>
-            <td style="color: var(--ink);">CodeSentinel (real LLM)</td>
-            <td class="num-cell">0</td>
-            <td class="num-cell mono" style="font-size:13px">441.9s</td>
-            <td class="num-cell">~$0.25</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="results-note">
-        ↳ Flask <span style="color: var(--ink);">app.py + helpers.py</span> &nbsp;·&nbsp; Overlap: 0 &nbsp;·&nbsp; Both tools correct — hardened production code has no vulnerabilities &nbsp;·&nbsp; <span style="color: var(--accent);">eval/results/semgrep_comparison/</span>
-      </div>
-    </div>
   </section>
 
   <!-- ============ STORY / §11.6 ============ -->
@@ -720,11 +702,8 @@ make test
 <span class="comment"># 4 · run the benchmark · baseline vs. multi-agent</span>
 make benchmark
 
-<span class="comment"># 5 · launch the streamlit UI locally</span>
+<span class="comment"># 5 · launch the streamlit UI</span>
 make ui
-
-<span class="comment"># or use the live cloud deployment:</span>
-<span class="comment"># https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app</span>
     </div>
   </section>
 
@@ -734,10 +713,10 @@ make ui
     <h2 class="sec-head">Every file. Every test. <em>Every measured number.</em></h2>
 
     <div class="cta-row" style="margin-top: 48px;">
-      <a href="https://github.com/AravindB98/CodeSentinel" class="btn primary">GitHub repository <span class="arrow">↗</span></a>
-      <a href="https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app" class="btn primary">Live demo <span class="arrow">↗</span></a>
+      <a href="https://github.com/aravindbalaji/codesentinel" class="btn primary">GitHub repository <span class="arrow">↗</span></a>
       <a href="./docs/CodeSentinel_Technical_Report.pdf" class="btn">Technical report (PDF) <span class="arrow">↗</span></a>
       <a href="./docs/ARCHITECTURE.md" class="btn">Architecture doc <span class="arrow">↗</span></a>
+      <a href="#" class="btn">Video walkthrough <span class="arrow">↗</span></a>
     </div>
   </section>
 
@@ -756,10 +735,10 @@ make ui
       <div class="footer-col">
         <h5>Artifacts</h5>
         <ul>
-          <li><a href="https://github.com/AravindB98/CodeSentinel">GitHub repo</a></li>
+          <li><a href="https://github.com/aravindbalaji/codesentinel">GitHub repo</a></li>
           <li><a href="./docs/CodeSentinel_Technical_Report.pdf">Tech report (PDF)</a></li>
           <li><a href="./docs/ARCHITECTURE.md">Architecture</a></li>
-          <li><a href="https://codesentinel-f2ggdvqeuwsj4pta5sk27s.streamlit.app">Streamlit demo</a></li>
+          <li><a href="https://github.com/aravindbalaji/codesentinel/tree/main/app">Streamlit demo</a></li>
         </ul>
       </div>
       <div class="footer-col">
