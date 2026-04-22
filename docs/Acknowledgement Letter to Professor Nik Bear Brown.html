@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Acknowledgement — INFO 7375, Spring 2026</title>
+  <meta name="author" content="Aravind Balaji">
+  <meta name="description" content="Letter of reflection and thanks to Professor Nik Bear Brown, INFO 7375 Spring 2026.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* ---------- palette (matches CodeSentinel report) ---------- */
+    :root {
+      --brand:       #D97706;   /* primary orange */
+      --sindoor:     #C2410C;   /* deep sindoor */
+      --brand-soft:  #FFF4E3;   /* warm cream */
+      --ink:         #1A1C17;
+      --muted:       #5A584D;
+      --rule:        #E8DFC8;
+      --paper:       #FFFDF7;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #F5F0E4;
+      color: var(--ink);
+      font-family: "Times New Roman", Times, Georgia, serif;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .page {
+      max-width: 760px;
+      margin: 40px auto;
+      padding: 60px 70px 50px;
+      background: var(--paper);
+      box-shadow: 0 10px 40px rgba(26, 28, 23, 0.12), 0 2px 6px rgba(26, 28, 23, 0.06);
+      border-radius: 3px;
+      position: relative;
+    }
+
+    /* ---------- running header bar ---------- */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--brand);
+      font-size: 0.75rem;
+      margin-bottom: 28px;
+    }
+    .header-bar .left  { color: var(--muted); }
+    .header-bar .right { color: var(--sindoor); letter-spacing: 0.06em; }
+
+    /* ---------- title block ---------- */
+    .title {
+      text-align: center;
+      font-size: 1.85rem;
+      letter-spacing: 0.18em;
+      color: var(--sindoor);
+      margin: 6px 0 2px;
+      font-weight: normal;
+    }
+    .title-rule {
+      display: block;
+      width: 120px;
+      height: 1.5px;
+      background: var(--brand);
+      border: 0;
+      margin: 6px auto 4px;
+    }
+    .subtitle {
+      text-align: center;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+
+    /* ---------- date + recipient ---------- */
+    .date {
+      text-align: right;
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+    .recipient {
+      margin: 0 0 22px;
+      line-height: 1.5;
+    }
+    .recipient-name {
+      /* same size as body; no bold per instructions, but still visually anchored */
+      color: var(--ink);
+    }
+
+    .salutation {
+      margin: 0 0 14px;
+    }
+
+    /* ---------- body paragraphs ---------- */
+    p {
+      text-align: justify;
+      margin: 0 0 12px;
+      hyphens: auto;
+    }
+
+    em, i {
+      font-style: italic;
+      color: var(--ink);
+    }
+
+    /* ---------- closing + signature ---------- */
+    .closing {
+      margin-top: 22px;
+      margin-bottom: 8px;
+    }
+    .signature {
+      color: var(--sindoor);
+      font-size: 1.15rem;
+      margin: 6px 0 2px;
+      font-weight: normal;
+    }
+    .credentials {
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 0;
+    }
+    .credentials .dot {
+      color: var(--brand);
+      padding: 0 6px;
+    }
+
+    /* ---------- footer ---------- */
+    .page-footer {
+      margin-top: 36px;
+      padding-top: 12px;
+      border-top: 1px solid var(--rule);
+      text-align: center;
+      font-size: 0.78rem;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    /* ---------- print ---------- */
+    @page { size: letter; margin: 0.75in 0.9in 0.5in; }
+    @media print {
+      body { background: white; }
+      .page {
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        max-width: none;
+      }
+      .header-bar { page-break-after: avoid; }
+      .signature, .credentials { page-break-before: avoid; }
+    }
+
+    /* ---------- small screens ---------- */
+    @media (max-width: 640px) {
+      .page { margin: 0; padding: 32px 22px; border-radius: 0; }
+      .title { font-size: 1.45rem; letter-spacing: 0.12em; }
+      p { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page" role="main">
+    <div class="header-bar" aria-hidden="true">
+      <span class="left">Aravind Balaji</span>
+      <span class="right">INFO 7375 &nbsp;·&nbsp; Spring 2026</span>
+    </div>
+
+    <h1 class="title">ACKNOWLEDGEMENT</h1>
+    <hr class="title-rule">
+    <p class="subtitle">A letter of reflection and thanks</p>
+
+    <p class="date">April 21, 2026</p>
+
+    <address class="recipient">
+      <span class="recipient-name">Professor Nik Bear Brown</span><br>
+      INFO 7375, Prompt Engineering and Generative AI<br>
+      College of Engineering<br>
+      Northeastern University
+    </address>
+
+    <p class="salutation">Dear Professor Brown,</p>
+
+    <p>
+      I would like to begin by acknowledging, with sincere gratitude, your steady support,
+      motivation, and guidance with AI tools throughout the semester. Your mentorship was
+      instrumental at every stage of this project, from the earliest ideation sessions, through
+      the iterative phases of creation and refinement, and through to its successful completion.
+      Without your encouragement to think ambitiously and your practical guidance on how to use
+      modern generative AI tools responsibly and effectively, the work I am submitting this
+      semester would not have taken the shape it did.
+    </p>
+
+    <p>
+      Greetings. As discussed in our last class, I am writing to reflect on this semester&rsquo;s
+      work, and on how I have learned and grown as a person after taking your INFO 7375
+      <em>Prompt Engineering and Generative AI</em> during the Spring 2026 semester.
+    </p>
+
+    <p>
+      The semester started with watching your videos on YouTube, from <em>What is Prompt
+      Engineering?</em> to the <em>Jane Austen thought experiment</em> to the
+      <em>Personas study</em>. From being just viewers and commenters, we moved to creating
+      videos of our own as part of assignments; that progression from consuming to producing
+      has stayed with me. The assignments themselves turned out to be portfolio pieces. Each
+      one taught us things about AI that would ordinarily take years, compressed into weeks
+      and days, and your motivation for creating portfolio-grade work directly inspired me to
+      build out my own website in that direction.
+    </p>
+
+    <p>
+      With your constant encouragement, and by simply listening closely in class, I was able
+      to use AI tools effectively to the point where I feel I have somewhat mastered the art
+      of prompt engineering. I applied the skills learned in class to bring a longstanding
+      idea of mine to a published paper titled <em>Quantum Enhanced Memory Architectures for
+      Graph-based AI Systems (QEMA-G)</em>.
+    </p>
+
+    <p>
+      Beyond publishing a paper, you kindled an interest in writing in all of us. You
+      encouraged me to contribute a chapter to your forthcoming book on agentic systems. Who
+      knew a single course could lead to all of this? I was also able to contribute to the
+      NortheasternISE Substack, and I started my own Substack, where I have now published
+      more than thirty articles over the course of the semester.
+    </p>
+
+    <p>
+      Your teaching also drew me deeper into research and leadership. This semester I helped
+      re-instate AI Skunkworks, our graduate research-focused club, essentially from the
+      ground up, and earned GSG Senate recognition for it. I am excited about the activities
+      we are planning for next semester, and I look forward to working with you closely as we
+      grow the club.
+    </p>
+
+    <p>
+      I also want to thank you, specifically and sincerely, for the many articles of mine you
+      have liked, shared, and promoted throughout the semester. The visibility that created
+      directly led to interview opportunities and invitations to international technical
+      conferences, outcomes I genuinely could not have engineered on my own. I look forward
+      to collaborating with you well beyond this semester, on AI Skunkworks initiatives and
+      on anything else interesting and curious that comes next. Thank you, Professor. It has
+      been a remarkable semester.
+    </p>
+
+    <p class="closing">With sincere gratitude,</p>
+
+    <p class="signature">Aravind Balaji</p>
+    <p class="credentials">
+      M.S. Information Systems
+      <span class="dot">·</span>
+      College of Engineering
+      <span class="dot">·</span>
+      Northeastern University
+    </p>
+
+    <footer class="page-footer">
+      balaji.ara@northeastern.edu &nbsp;·&nbsp; NUID 001564773
+    </footer>
+  </main>
+</body>
+</html>
